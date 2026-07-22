@@ -1,0 +1,41 @@
+@model ParolaDegistirViewModel
+@{
+    ViewData["Title"] = "Parola Değiştir";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body">
+        <h2 class="h2 text-center mb-2">Parolanızı değiştirin</h2>
+        <p class="text-secondary text-center mb-4">
+            Güvenliğiniz için geçici parolanızı yeni bir parolayla değiştirmelisiniz.
+        </p>
+
+        <form asp-action="ParolaDegistir" method="post" autocomplete="off" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="MevcutParola" class="form-label"></label>
+                <input asp-for="MevcutParola" class="form-control" />
+                <span asp-validation-for="MevcutParola" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="YeniParola" class="form-label"></label>
+                <input asp-for="YeniParola" class="form-control" />
+                <span asp-validation-for="YeniParola" class="text-danger small"></span>
+                <small class="form-hint">En az 8 karakter ve en az bir rakam içermelidir.</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="YeniParolaTekrar" class="form-label"></label>
+                <input asp-for="YeniParolaTekrar" class="form-control" />
+                <span asp-validation-for="YeniParolaTekrar" class="text-danger small"></span>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Parolayı Değiştir</button>
+            </div>
+        </form>
+    </div>
+</div>

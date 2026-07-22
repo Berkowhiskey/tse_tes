@@ -1,0 +1,42 @@
+@model GirisViewModel
+@{
+    ViewData["Title"] = "Giriş";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body">
+        <h2 class="h2 text-center mb-4">Hesabınıza giriş yapın</h2>
+
+        <form asp-action="Giris" method="post" autocomplete="off" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="KullaniciAdi" class="form-label"></label>
+                <input asp-for="KullaniciAdi" class="form-control" placeholder="ad_soyad_kartno" autofocus />
+                <span asp-validation-for="KullaniciAdi" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-2">
+                <label asp-for="Parola" class="form-label"></label>
+                <input asp-for="Parola" class="form-control" placeholder="Parolanız" />
+                <span asp-validation-for="Parola" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-check">
+                    <input asp-for="BeniHatirla" class="form-check-input" />
+                    <span class="form-check-label">@Html.DisplayNameFor(m => m.BeniHatirla)</span>
+                </label>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="text-center text-secondary mt-3 small">
+    İlk girişinizde geçici parolanızı değiştirmeniz istenecektir.
+</div>

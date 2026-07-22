@@ -1,0 +1,1 @@
+﻿@tabler/core 1.4.0 (dist: css/tabler.min.css, js/tabler.min.js) - https://tabler.io

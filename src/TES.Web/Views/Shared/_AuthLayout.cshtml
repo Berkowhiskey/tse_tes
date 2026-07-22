@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>@ViewData["Title"] — TES</title>
+    <link rel="stylesheet" href="~/lib/tabler/css/tabler.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="d-flex flex-column">
+    <div class="page page-center">
+        <div class="container container-tight py-4">
+            <div class="text-center mb-4">
+                <h1 class="navbar-brand navbar-brand-autodark">TSE · TES</h1>
+            </div>
+            @RenderBody()
+        </div>
+    </div>
+    <script src="~/lib/tabler/js/tabler.min.js" asp-append-version="true"></script>
+</body>
+</html>
