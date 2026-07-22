@@ -1,0 +1,43 @@
+@model YoklamaListeViewModel
+@{
+    ViewData["Title"] = "Yoklama";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">Takip</div>
+    <h2 class="page-title">Yoklama — @Model.KapsamAciklama</h2>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr><th>Stajyer</th><th>Giriş</th><th>Çıkış</th><th>Durum</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var y in Model.Satirlar)
+                {
+                    <tr>
+                        <td>@y.StajyerAdSoyad</td>
+                        <td>@y.GirisZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(y.CikisZamani?.ToString("dd.MM.yyyy HH:mm") ?? "—")</td>
+                        <td>
+                            @if (y.AcikOturum)
+                            {
+                                <span class="badge bg-yellow-lt">Açık oturum</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-green-lt">Tamamlandı</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Satirlar.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-center text-secondary">Henüz yoklama kaydı yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

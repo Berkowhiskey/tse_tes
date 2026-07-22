@@ -1,0 +1,31 @@
+@model EslestirViewModel
+@{
+    ViewData["Title"] = "Amir Eşleştir";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">Amir Eşleştir — @Model.StajyerAdSoyad</h2>
+</div>
+
+<div class="card col-lg-5">
+    <div class="card-body">
+        <form asp-action="Eslestir" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="StajyerProfilId" />
+            <input type="hidden" asp-for="StajyerAdSoyad" />
+
+            <div class="mb-3">
+                <label asp-for="AmirProfilId" class="form-label"></label>
+                <select asp-for="AmirProfilId" asp-items="Model.AmirSecenekleri" class="form-select">
+                    <option value="">(Eşleştirme yok)</option>
+                </select>
+                <small class="form-hint">Stajyerin departmanı otomatik olarak amirin departmanı yapılır.</small>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-action="Index" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

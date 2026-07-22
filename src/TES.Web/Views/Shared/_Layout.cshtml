@@ -1,10 +1,15 @@
 @using Microsoft.AspNetCore.Identity
+@using TES.Domain.Sabitler
 @using TES.Infrastructure.Identity
 @inject UserManager<Kullanici> UserManager
 @{
     var aktifKullanici = User.Identity?.IsAuthenticated == true
         ? await UserManager.GetUserAsync(User)
         : null;
+
+    // Menü görünürlüğü yalnızca kolaylıktır; yetki her action'da sunucuda doğrulanır.
+    var adminMi = User.IsInRole(Roller.Admin);
+    var amirMi = User.IsInRole(Roller.Amir);
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -43,6 +48,7 @@
                                 </div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                                <a asp-controller="Profil" asp-action="Index" class="dropdown-item">Profilim</a>
                                 <a asp-controller="Hesap" asp-action="ParolaDegistir" class="dropdown-item">Parola Değiştir</a>
                                 <div class="dropdown-divider"></div>
                                 <form asp-controller="Hesap" asp-action="Cikis" method="post">
@@ -59,6 +65,37 @@
                                     <span class="nav-link-title">Ana Sayfa</span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Yoklama" asp-action="Index">
+                                    <span class="nav-link-title">Yoklama</span>
+                                </a>
+                            </li>
+                            @if (adminMi || amirMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Stajyerler" asp-action="Index">
+                                        <span class="nav-link-title">Stajyerler</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (adminMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Departman" asp-action="Index">
+                                        <span class="nav-link-title">Departmanlar</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="KullaniciYonetim" asp-action="Index">
+                                        <span class="nav-link-title">Kullanıcı Yönetimi</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="YoklamaSimulator" asp-action="Index">
+                                        <span class="nav-link-title">RFID Simülatör</span>
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 }
@@ -72,6 +109,13 @@
                     {
                         <div class="alert alert-success alert-dismissible" role="alert">
                             @basariMesaji
+                            <a class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></a>
+                        </div>
+                    }
+                    @if (TempData["Hata"] is string hataMesaji)
+                    {
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            @hataMesaji
                             <a class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></a>
                         </div>
                     }

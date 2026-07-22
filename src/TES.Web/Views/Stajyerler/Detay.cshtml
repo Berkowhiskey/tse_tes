@@ -1,0 +1,67 @@
+@using TES.Infrastructure.Services
+@model StajyerSatiri
+@{
+    ViewData["Title"] = Model.AdSoyad;
+    var yoklamalar = (IReadOnlyList<YoklamaSatirViewModel>)ViewBag.Yoklamalar;
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">Stajyer Detayı</div>
+    <h2 class="page-title">@Model.AdSoyad</h2>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Bilgiler</h3></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5">Kullanıcı adı</dt><dd class="col-7">@Model.KullaniciAdi</dd>
+                    <dt class="col-5">Kart No</dt><dd class="col-7">@Model.Profil.KartNo</dd>
+                    <dt class="col-5">Okul</dt><dd class="col-7">@(Model.Profil.Okul ?? "—")</dd>
+                    <dt class="col-5">Bölüm</dt><dd class="col-7">@(Model.Profil.Bolum ?? "—")</dd>
+                    <dt class="col-5">Staj Dönemi</dt>
+                    <dd class="col-7">@Model.Profil.StajBaslangic.ToString("dd.MM.yyyy") — @Model.Profil.StajBitis.ToString("dd.MM.yyyy")</dd>
+                    <dt class="col-5">Amir</dt><dd class="col-7">@(Model.AmirAdSoyad ?? "Eşleştirilmedi")</dd>
+                    <dt class="col-5">Departman</dt><dd class="col-7">@(Model.DepartmanAd ?? "—")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Yoklama Kayıtları</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>Giriş</th><th>Çıkış</th><th>Durum</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var y in yoklamalar)
+                        {
+                            <tr>
+                                <td>@y.GirisZamani.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@(y.CikisZamani?.ToString("dd.MM.yyyy HH:mm") ?? "—")</td>
+                                <td>
+                                    @if (y.AcikOturum)
+                                    {
+                                        <span class="badge bg-yellow-lt">Açık oturum</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-green-lt">Tamamlandı</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (yoklamalar.Count == 0)
+                        {
+                            <tr><td colspan="3" class="text-center text-secondary">Henüz yoklama kaydı yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

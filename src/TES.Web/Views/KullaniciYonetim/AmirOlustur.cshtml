@@ -1,0 +1,59 @@
+@model AmirOlusturViewModel
+@{
+    ViewData["Title"] = "Yeni Amir";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">Yeni Amir Oluştur</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <form asp-action="AmirOlustur" method="post" autocomplete="off" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Ad" class="form-label"></label>
+                    <input asp-for="Ad" class="form-control" autofocus />
+                    <span asp-validation-for="Ad" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Soyad" class="form-label"></label>
+                    <input asp-for="Soyad" class="form-control" />
+                    <span asp-validation-for="Soyad" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TcKimlikNo" class="form-label"></label>
+                <input asp-for="TcKimlikNo" class="form-control" maxlength="11" />
+                <span asp-validation-for="TcKimlikNo" class="text-danger small"></span>
+                <small class="form-hint">Yalnızca geçici parola üretiminde kullanılır; sistemde saklanmaz.</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="DepartmanId" class="form-label"></label>
+                <select asp-for="DepartmanId" asp-items="Model.DepartmanSecenekleri" class="form-select">
+                    <option value="">Seçiniz...</option>
+                </select>
+                <span asp-validation-for="DepartmanId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="IseBaslamaTarihi" class="form-label"></label>
+                <input asp-for="IseBaslamaTarihi" class="form-control" type="date" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Hakkimda" class="form-label"></label>
+                <textarea asp-for="Hakkimda" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Oluştur</button>
+                <a asp-action="Index" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

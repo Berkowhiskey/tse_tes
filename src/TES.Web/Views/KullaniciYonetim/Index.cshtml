@@ -1,0 +1,84 @@
+@model KullaniciYonetimIndexViewModel
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Yönetim</div>
+            <h2 class="page-title">Kullanıcı Yönetimi</h2>
+        </div>
+        <div class="col-auto d-flex gap-2">
+            <a asp-action="AmirOlustur" class="btn">Yeni Amir</a>
+            <a asp-action="StajyerOlustur" class="btn btn-primary">Yeni Stajyer</a>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Amirler</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>Ad Soyad</th><th>Departman</th><th class="text-end">Stajyer</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var amir in Model.Amirler)
+                        {
+                            <tr>
+                                <td>
+                                    @amir.AdSoyad
+                                    <div class="text-secondary small">@amir.KullaniciAdi</div>
+                                </td>
+                                <td>@amir.DepartmanAd</td>
+                                <td class="text-end"><span class="badge bg-blue-lt">@amir.StajyerSayisi</span></td>
+                            </tr>
+                        }
+                        @if (Model.Amirler.Count == 0)
+                        {
+                            <tr><td colspan="3" class="text-center text-secondary">Henüz amir yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Stajyerler</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>Ad Soyad</th><th>Kart</th><th>Amir</th><th>Departman</th><th class="text-end">İşlem</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.Stajyerler)
+                        {
+                            <tr>
+                                <td>
+                                    @s.AdSoyad
+                                    <div class="text-secondary small">@s.KullaniciAdi</div>
+                                </td>
+                                <td>@s.Profil.KartNo</td>
+                                <td>@(s.AmirAdSoyad ?? "—")</td>
+                                <td>@(s.DepartmanAd ?? "—")</td>
+                                <td class="text-end">
+                                    <a asp-action="Eslestir" asp-route-id="@s.Profil.Id" class="btn btn-sm">Eşleştir</a>
+                                    <a asp-controller="Stajyerler" asp-action="Detay" asp-route-id="@s.Profil.Id" class="btn btn-sm">Detay</a>
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Stajyerler.Count == 0)
+                        {
+                            <tr><td colspan="5" class="text-center text-secondary">Henüz stajyer yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

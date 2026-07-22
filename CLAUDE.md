@@ -234,6 +234,16 @@ Bir özellik; yetkilendirmesi sunucuda doğrulanmış, doğrulama/hata durumlar�
 - **Tamamlandı [22.07.2026 15:52]** — Testler: `KullaniciAdiUreticiTests` (11/11 geçti). Duman testi: `/Hesap/Giris` 200, anonim `/` → login 302. `dotnet build` ve `dotnet test` temiz.
 - **Tamamlandı [22.07.2026 16:07]** — Kullanıcı doğrulaması: 3 seed kullanıcısıyla giriş yapıldı, zorunlu parola değişim akışı uçtan uca çalıştı. `README.md` hazırlandı, `.gitignore` eklendi.
 
-### Faz 1 — Kimlik & organizasyon · **Devam ediyor**
+### Faz 1 — Kimlik & organizasyon · **Tamamlandı [22.07.2026 16:47]**
 
-- Sıradaki kapsam: Departman hiyerarşisi, `AmirProfil`/`StajyerProfil`, Amir–Stajyer eşleştirme, Yoklama (RFID simülatörü).
+- **Tamamlandı [22.07.2026 16:20]** — Domain entity'leri: `Departman` (kendine referanslı hiyerarşi), `AmirProfil`, `StajyerProfil` (tek amir, departman amirden; T.C. SAKLANMAZ), `YoklamaKaydi` (açık oturum kuralı).
+- **Tamamlandı [22.07.2026 16:25]** — `TesDbContext` ilişkileri: benzersiz indeksler (KullaniciId, KartNo), hiyerarşide Restrict, amir silinince `ClientSetNull` (SQL Server çoklu cascade yolu engeli), migration `Faz1KimlikOrganizasyon` oluşturuldu ve uygulandı.
+- **Tamamlandı [22.07.2026 16:30]** — Servisler: `DepartmanServisi` (hiyerarşik liste, döngü koruması, dolu departman silinemez), `KullaniciYonetimServisi` (amir/stajyer hesabı açma — geçici parola=T.C., saklanmaz; eşleştirmede departman amirden), `StajyerSorguServisi` (sahiplik kuralı sunucuda), `YoklamaServisi` (gün içi giriş-çıkış eşleştirme), `ProfilServisi`. Hepsi DI ile kayıtlı.
+- **Tamamlandı [22.07.2026 16:35]** — Seed genişletildi: Bilgi-İşlem → {Yazılım Geliştirme, Sistem, Donanım}; mehmet_demir → AmirProfil (Yazılım Geliştirme); ayse_yilmaz_1001 → StajyerProfil (kart 1001, amiri mehmet_demir). İdempotent.
+- **Tamamlandı [22.07.2026 16:40]** — Web ekranları: Departmanlar (Admin CRUD), Kullanıcı Yönetimi (amir/stajyer oluşturma + Eşleştir), Stajyerler (Amir kendi / Admin tümü; detay görüntüleme `StajyerVerisiGoruntulendi` denetim kaydı yazar), Profilim (görüntüle/düzenle), Yoklama (role göre kapsam), rol bazlı navbar.
+- **Tamamlandı [22.07.2026 16:42]** — RFID Yoklama Simülatörü (`// GERÇEKTE: fiziksel RFID gişeleri` yorumuyla, Admin'e açık): kart seç → aynı gün açık oturum varsa çıkış, yoksa giriş.
+- **Tamamlandı [22.07.2026 16:47]** — Testler: SQLite in-memory ile `YoklamaServisi` (5 test: tanınmayan kart, giriş, gün içi çift eşleşme, üçüncü okutma, dünkü açık oturum korunur) + `DepartmanServisi` (4 test). Toplam **20/20 geçti**. Duman testi: uygulama açıldı, Faz 1 seed DB'de doğrulandı. `dotnet build` + `dotnet test` temiz.
+
+### Faz 2 — Misafir ağı (kalp) · **Devam ediyor**
+
+- Sıradaki kapsam: TSE-Misafir sponsor akışı (`MisafirErisimTalebi`, token, voucher, rate-limit), SMTP simülasyonu (`IEmailSender`), mock personel dizini (`IPersonelDizini`), `INetworkAccessProvider` + `SimulatedNetworkAccessProvider`.

@@ -1,0 +1,47 @@
+@model ProfilViewModel
+@{
+    ViewData["Title"] = "Profilim";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Hesap</div>
+            <h2 class="page-title">Profilim</h2>
+        </div>
+        <div class="col-auto">
+            @if (Model.StajyerBilgisi is not null || Model.Rol.Contains("Amir"))
+            {
+                <a asp-action="Duzenle" class="btn">Düzenle</a>
+            }
+            <a asp-controller="Hesap" asp-action="ParolaDegistir" class="btn">Parola Değiştir</a>
+        </div>
+    </div>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-5">Ad Soyad</dt><dd class="col-7">@Model.AdSoyad</dd>
+            <dt class="col-5">Kullanıcı adı</dt><dd class="col-7">@Model.KullaniciAdi</dd>
+            <dt class="col-5">Rol</dt><dd class="col-7"><span class="badge bg-blue-lt">@Model.Rol</span></dd>
+
+            @if (Model.StajyerBilgisi is not null)
+            {
+                <dt class="col-5">Kart No</dt><dd class="col-7">@Model.StajyerBilgisi.Profil.KartNo</dd>
+                <dt class="col-5">Okul</dt><dd class="col-7">@(Model.StajyerBilgisi.Profil.Okul ?? "—")</dd>
+                <dt class="col-5">Bölüm</dt><dd class="col-7">@(Model.StajyerBilgisi.Profil.Bolum ?? "—")</dd>
+                <dt class="col-5">Staj Dönemi</dt>
+                <dd class="col-7">@Model.StajyerBilgisi.Profil.StajBaslangic.ToString("dd.MM.yyyy") — @Model.StajyerBilgisi.Profil.StajBitis.ToString("dd.MM.yyyy")</dd>
+                <dt class="col-5">Amir</dt><dd class="col-7">@(Model.StajyerBilgisi.AmirAdSoyad ?? "Eşleştirilmedi")</dd>
+                <dt class="col-5">Departman</dt><dd class="col-7">@(Model.StajyerBilgisi.DepartmanAd ?? "—")</dd>
+            }
+            else if (Model.DepartmanAd is not null || Model.Hakkimda is not null)
+            {
+                <dt class="col-5">Departman</dt><dd class="col-7">@(Model.DepartmanAd ?? "—")</dd>
+                <dt class="col-5">İşe Başlama</dt><dd class="col-7">@(Model.IseBaslamaTarihi?.ToString("dd.MM.yyyy") ?? "—")</dd>
+                <dt class="col-5">Hakkında</dt><dd class="col-7">@(Model.Hakkimda ?? "—")</dd>
+            }
+        </dl>
+    </div>
+</div>

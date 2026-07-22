@@ -1,0 +1,36 @@
+@model DepartmanFormViewModel
+@{
+    var baslik = Model.Id is null ? "Yeni Departman" : "Departman Düzenle";
+    ViewData["Title"] = baslik;
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">@baslik</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <form asp-action="Kaydet" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-3">
+                <label asp-for="Ad" class="form-label"></label>
+                <input asp-for="Ad" class="form-control" autofocus />
+                <span asp-validation-for="Ad" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UstDepartmanId" class="form-label"></label>
+                <select asp-for="UstDepartmanId" asp-items="Model.DepartmanSecenekleri" class="form-select">
+                    <option value="">(Kök departman)</option>
+                </select>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-action="Index" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

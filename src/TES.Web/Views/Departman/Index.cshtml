@@ -1,0 +1,56 @@
+@model DepartmanListeViewModel
+@{
+    ViewData["Title"] = "Departmanlar";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">Organizasyon</div>
+            <h2 class="page-title">Departmanlar</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Olustur" class="btn btn-primary">Yeni Departman</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Departman</th>
+                    <th class="w-25 text-end">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var satir in Model.Satirlar)
+                {
+                    <tr>
+                        <td>
+                            <span style="padding-left:@(satir.Seviye * 24)px">
+                                @if (satir.Seviye > 0)
+                                {
+                                    <span class="text-secondary">└─</span>
+                                }
+                                @satir.Ad
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Duzenle" asp-route-id="@satir.Id" class="btn btn-sm">Düzenle</a>
+                            <form asp-action="Sil" asp-route-id="@satir.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Bu departmanı silmek istediğinize emin misiniz?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Sil</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Satirlar.Count == 0)
+                {
+                    <tr><td colspan="2" class="text-center text-secondary">Henüz departman yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

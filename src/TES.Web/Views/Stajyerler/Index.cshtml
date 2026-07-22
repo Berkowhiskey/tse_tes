@@ -1,0 +1,47 @@
+@using TES.Infrastructure.Services
+@model IReadOnlyList<StajyerSatiri>
+@{
+    ViewData["Title"] = "Stajyerlerim";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">Takip</div>
+    <h2 class="page-title">Stajyerler</h2>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Kart</th>
+                    <th>Departman</th>
+                    <th>Staj Dönemi</th>
+                    <th class="text-end">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>
+                            @s.AdSoyad
+                            <div class="text-secondary small">@s.KullaniciAdi</div>
+                        </td>
+                        <td>@s.Profil.KartNo</td>
+                        <td>@(s.DepartmanAd ?? "—")</td>
+                        <td>@s.Profil.StajBaslangic.ToString("dd.MM.yyyy") — @s.Profil.StajBitis.ToString("dd.MM.yyyy")</td>
+                        <td class="text-end">
+                            <a asp-action="Detay" asp-route-id="@s.Profil.Id" class="btn btn-sm btn-primary">Detay</a>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center text-secondary">Size eşleştirilmiş stajyer bulunmuyor.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

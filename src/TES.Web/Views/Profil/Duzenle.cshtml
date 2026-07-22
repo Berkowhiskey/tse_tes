@@ -1,0 +1,44 @@
+@model ProfilDuzenleViewModel
+@{
+    ViewData["Title"] = "Profili Düzenle";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">Profili Düzenle</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <form asp-action="Duzenle" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="StajyerMi" />
+
+            @if (Model.StajyerMi)
+            {
+                <div class="mb-3">
+                    <label asp-for="Okul" class="form-label"></label>
+                    <input asp-for="Okul" class="form-control" />
+                    <span asp-validation-for="Okul" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Bolum" class="form-label"></label>
+                    <input asp-for="Bolum" class="form-control" />
+                    <span asp-validation-for="Bolum" class="text-danger small"></span>
+                </div>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <label asp-for="Hakkimda" class="form-label"></label>
+                    <textarea asp-for="Hakkimda" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Hakkimda" class="text-danger small"></span>
+                </div>
+            }
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-action="Index" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

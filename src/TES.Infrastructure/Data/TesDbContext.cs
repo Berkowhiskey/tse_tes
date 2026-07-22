@@ -9,6 +9,10 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
     : IdentityDbContext<Kullanici>(options)
 {
     public DbSet<DenetimKaydi> DenetimKayitlari => Set<DenetimKaydi>();
+    public DbSet<Departman> Departmanlar => Set<Departman>();
+    public DbSet<AmirProfil> AmirProfilleri => Set<AmirProfil>();
+    public DbSet<StajyerProfil> StajyerProfilleri => Set<StajyerProfil>();
+    public DbSet<YoklamaKaydi> YoklamaKayitlari => Set<YoklamaKaydi>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -20,6 +24,73 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
             e.Property(x => x.Islem).HasMaxLength(128);
             e.Property(x => x.Detay).HasMaxLength(1024);
             e.HasIndex(x => x.Zaman);
+        });
+
+        builder.Entity<Departman>(e =>
+        {
+            e.Property(x => x.Ad).HasMaxLength(128);
+            e.HasIndex(x => new { x.UstDepartmanId, x.Ad }).IsUnique();
+
+            // Hiyerarşide yanlışlıkla zincirleme silme olmasın.
+            e.HasOne(x => x.UstDepartman)
+                .WithMany(x => x.AltDepartmanlar)
+                .HasForeignKey(x => x.UstDepartmanId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<AmirProfil>(e =>
+        {
+            e.Property(x => x.KullaniciId).HasMaxLength(450);
+            e.Property(x => x.Hakkimda).HasMaxLength(2000);
+            e.HasIndex(x => x.KullaniciId).IsUnique();
+
+            e.HasOne<Kullanici>()
+                .WithOne()
+                .HasForeignKey<AmirProfil>(x => x.KullaniciId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(x => x.Departman)
+                .WithMany()
+                .HasForeignKey(x => x.DepartmanId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<StajyerProfil>(e =>
+        {
+            e.Property(x => x.KullaniciId).HasMaxLength(450);
+            e.Property(x => x.KartNo).HasMaxLength(64);
+            e.Property(x => x.Okul).HasMaxLength(256);
+            e.Property(x => x.Bolum).HasMaxLength(256);
+            e.HasIndex(x => x.KullaniciId).IsUnique();
+            e.HasIndex(x => x.KartNo).IsUnique();
+
+            e.HasOne<Kullanici>()
+                .WithOne()
+                .HasForeignKey<StajyerProfil>(x => x.KullaniciId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Tek amir; amir silinirse stajyer amir'siz kalır (eşleştirme admin'e düşer).
+            // ClientSetNull: SQL Server'da AspNetUsers üzerinden çoklu cascade yolu
+            // oluşmaması için null'lama istemci (EF) tarafında yapılır.
+            e.HasOne(x => x.Amir)
+                .WithMany(x => x.Stajyerler)
+                .HasForeignKey(x => x.AmirId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            e.HasOne(x => x.Departman)
+                .WithMany()
+                .HasForeignKey(x => x.DepartmanId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<YoklamaKaydi>(e =>
+        {
+            e.HasIndex(x => new { x.StajyerProfilId, x.GirisZamani });
+
+            e.HasOne(x => x.StajyerProfil)
+                .WithMany(x => x.YoklamaKayitlari)
+                .HasForeignKey(x => x.StajyerProfilId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

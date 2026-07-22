@@ -52,6 +52,11 @@ builder.Services.AddAuthorizationBuilder()
 
 // Servisler
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();
+builder.Services.AddScoped<IDepartmanServisi, DepartmanServisi>();
+builder.Services.AddScoped<IKullaniciYonetimServisi, KullaniciYonetimServisi>();
+builder.Services.AddScoped<IStajyerSorguServisi, StajyerSorguServisi>();
+builder.Services.AddScoped<IYoklamaServisi, YoklamaServisi>();
+builder.Services.AddScoped<IProfilServisi, ProfilServisi>();
 
 builder.Services.AddControllersWithViews(o =>
 {

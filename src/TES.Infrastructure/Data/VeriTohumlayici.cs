@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TES.Domain.Entities;
 using TES.Domain.Kurallar;
 using TES.Domain.Sabitler;
 using TES.Infrastructure.Identity;
@@ -75,5 +76,76 @@ public static class VeriTohumlayici
 
         if (yeniOlusan)
             await denetim.KaydetAsync("Sistem", "SeedTamamlandi", "Roller ve örnek kullanıcılar oluşturuldu.");
+
+        // 3) Faz 1: Departman hiyerarşisi + örnek profiller
+        await Faz1SeedAsync(db, userManager, denetim);
+    }
+
+    /// <summary>Departman hiyerarşisi ve örnek amir/stajyer profilleri (idempotent).</summary>
+    private static async Task Faz1SeedAsync(TesDbContext db, UserManager<Kullanici> userManager, IDenetimServisi denetim)
+    {
+        var yeniOlusan = false;
+
+        // Departmanlar: Bilgi-İşlem → { Yazılım Geliştirme, Sistem, Donanım }
+        var bilgiIslem = await db.Departmanlar.FirstOrDefaultAsync(d => d.Ad == "Bilgi-İşlem" && d.UstDepartmanId == null);
+        if (bilgiIslem is null)
+        {
+            bilgiIslem = new Departman { Ad = "Bilgi-İşlem" };
+            db.Departmanlar.Add(bilgiIslem);
+            await db.SaveChangesAsync();
+
+            db.Departmanlar.AddRange(
+                new Departman { Ad = "Yazılım Geliştirme", UstDepartmanId = bilgiIslem.Id },
+                new Departman { Ad = "Sistem", UstDepartmanId = bilgiIslem.Id },
+                new Departman { Ad = "Donanım", UstDepartmanId = bilgiIslem.Id });
+            await db.SaveChangesAsync();
+            yeniOlusan = true;
+        }
+
+        var yazilimGelistirme = await db.Departmanlar.FirstAsync(d => d.Ad == "Yazılım Geliştirme");
+
+        // Amir profili (mehmet_demir → Yazılım Geliştirme)
+        var amirKullanici = await userManager.FindByNameAsync("mehmet_demir");
+        AmirProfil? amirProfil = null;
+        if (amirKullanici is not null)
+        {
+            amirProfil = await db.AmirProfilleri.FirstOrDefaultAsync(a => a.KullaniciId == amirKullanici.Id);
+            if (amirProfil is null)
+            {
+                amirProfil = new AmirProfil
+                {
+                    KullaniciId = amirKullanici.Id,
+                    DepartmanId = yazilimGelistirme.Id,
+                    IseBaslamaTarihi = new DateOnly(2020, 3, 16),
+                    Hakkimda = "Yazılım Geliştirme biriminde kıdemli mühendis."
+                };
+                db.AmirProfilleri.Add(amirProfil);
+                await db.SaveChangesAsync();
+                yeniOlusan = true;
+            }
+        }
+
+        // Stajyer profili (ayse_yilmaz_1001, kart 1001, amiri mehmet_demir)
+        var stajyerKullanici = await userManager.FindByNameAsync("ayse_yilmaz_1001");
+        if (stajyerKullanici is not null &&
+            !await db.StajyerProfilleri.AnyAsync(s => s.KullaniciId == stajyerKullanici.Id))
+        {
+            db.StajyerProfilleri.Add(new StajyerProfil
+            {
+                KullaniciId = stajyerKullanici.Id,
+                KartNo = "1001",
+                Okul = "Örnek Üniversitesi",
+                Bolum = "Bilgisayar Mühendisliği",
+                StajBaslangic = new DateOnly(2026, 7, 1),
+                StajBitis = new DateOnly(2026, 8, 28),
+                AmirId = amirProfil?.Id,
+                DepartmanId = amirProfil?.DepartmanId // departman amirden gelir
+            });
+            await db.SaveChangesAsync();
+            yeniOlusan = true;
+        }
+
+        if (yeniOlusan)
+            await denetim.KaydetAsync("Sistem", "Faz1SeedTamamlandi", "Departmanlar ve örnek profiller oluşturuldu.");
     }
 }
