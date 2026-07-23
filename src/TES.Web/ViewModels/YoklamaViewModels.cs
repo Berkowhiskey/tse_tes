@@ -23,4 +23,9 @@ public class SimulatorViewModel
     public IEnumerable<SelectListItem> KartSecenekleri { get; set; } = [];
     public string? SonucMesaji { get; set; }
     public bool? SonucBasarili { get; set; }
+
+    /// <summary>Admin tüm kartları okutabilir; stajyer yalnızca kendi kartını (sunucuda çözülür).</summary>
+    public bool AdminMi { get; set; }
+    public string? KendiKartNo { get; set; }
+    public string? KendiAdSoyad { get; set; }
 }

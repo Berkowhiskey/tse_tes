@@ -10,6 +10,7 @@
     // Menü görünürlüğü yalnızca kolaylıktır; yetki her action'da sunucuda doğrulanır.
     var adminMi = User.IsInRole(Roller.Admin);
     var amirMi = User.IsInRole(Roller.Amir);
+    var stajyerMi = User.IsInRole(Roller.Stajyer);
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -90,6 +91,9 @@
                                         <span class="nav-link-title">Kullanıcı Yönetimi</span>
                                     </a>
                                 </li>
+                            }
+                            @if (adminMi || stajyerMi)
+                            {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="YoklamaSimulator" asp-action="Index">
                                         <span class="nav-link-title">RFID Simülatör</span>

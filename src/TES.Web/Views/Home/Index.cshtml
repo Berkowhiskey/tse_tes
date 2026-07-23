@@ -1,5 +1,10 @@
+@using TES.Domain.Sabitler
 @{
     ViewData["Title"] = "Ana Sayfa";
+
+    var adminMi = User.IsInRole(Roller.Admin);
+    var amirMi = User.IsInRole(Roller.Amir);
+    var stajyerMi = User.IsInRole(Roller.Stajyer);
 }
 
 <div class="page-header d-print-none mb-3">
@@ -13,25 +18,86 @@
 
 <div class="row row-cards">
     <div class="col-sm-6 col-lg-4">
-        <div class="card">
+        <a asp-controller="Yoklama" asp-action="Index" class="card card-link">
             <div class="card-body">
-                <h3 class="card-title">Yoklama</h3>
-                <p class="text-secondary">Giriş-çıkış takibi (Faz 1'de gelecek).</p>
+                <h3 class="card-title">🕐 Yoklama</h3>
+                <p class="text-secondary">
+                    @(adminMi ? "Tüm stajyerlerin giriş-çıkış kayıtları."
+                        : amirMi ? "Stajyerlerinizin giriş-çıkış kayıtları."
+                        : "Giriş-çıkış kayıtlarınız.")
+                </p>
             </div>
-        </div>
+        </a>
     </div>
+
+    @if (adminMi || stajyerMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="YoklamaSimulator" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">📡 RFID Simülatör</h3>
+                    <p class="text-secondary">
+                        @(adminMi ? "Kart okutma simülasyonu (tüm kartlar)." : "Kartınızı okutun: giriş / çıkış.")
+                    </p>
+                </div>
+            </a>
+        </div>
+    }
+
+    @if (adminMi || amirMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Stajyerler" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">👥 Stajyerler</h3>
+                    <p class="text-secondary">@(adminMi ? "Tüm stajyerler ve detayları." : "Size eşleştirilmiş stajyerler.")</p>
+                </div>
+            </a>
+        </div>
+    }
+
+    @if (adminMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Departman" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🏢 Departmanlar</h3>
+                    <p class="text-secondary">Departman hiyerarşisini yönetin.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="KullaniciYonetim" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🧑‍💼 Kullanıcı Yönetimi</h3>
+                    <p class="text-secondary">Amir/stajyer hesapları ve eşleştirme.</p>
+                </div>
+            </a>
+        </div>
+    }
+
+    <div class="col-sm-6 col-lg-4">
+        <a asp-controller="Profil" asp-action="Index" class="card card-link">
+            <div class="card-body">
+                <h3 class="card-title">🪪 Profilim</h3>
+                <p class="text-secondary">Bilgilerinizi görüntüleyin ve düzenleyin.</p>
+            </div>
+        </a>
+    </div>
+
     <div class="col-sm-6 col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title">TSE-Misafir</h3>
+                <h3 class="card-title">🌐 TSE-Misafir</h3>
                 <p class="text-secondary">Sponsor onaylı misafir ağı erişimi (Faz 2'de gelecek).</p>
             </div>
         </div>
     </div>
+
     <div class="col-sm-6 col-lg-4">
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title">Proje & Ödev</h3>
+                <h3 class="card-title">📋 Proje &amp; Ödev</h3>
                 <p class="text-secondary">İş takibi (Faz 3'te gelecek).</p>
             </div>
         </div>

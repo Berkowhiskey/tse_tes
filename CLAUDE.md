@@ -244,6 +244,10 @@ Bir özellik; yetkilendirmesi sunucuda doğrulanmış, doğrulama/hata durumlar�
 - **Tamamlandı [22.07.2026 16:42]** — RFID Yoklama Simülatörü (`// GERÇEKTE: fiziksel RFID gişeleri` yorumuyla, Admin'e açık): kart seç → aynı gün açık oturum varsa çıkış, yoksa giriş.
 - **Tamamlandı [22.07.2026 16:47]** — Testler: SQLite in-memory ile `YoklamaServisi` (5 test: tanınmayan kart, giriş, gün içi çift eşleşme, üçüncü okutma, dünkü açık oturum korunur) + `DepartmanServisi` (4 test). Toplam **20/20 geçti**. Duman testi: uygulama açıldı, Faz 1 seed DB'de doğrulandı. `dotnet build` + `dotnet test` temiz.
 
+### Faz 1.5 — Küçük iyileştirmeler · **Tamamlandı [23.07.2026 08:53]**
+
+- **Tamamlandı [23.07.2026 08:53]** — Dashboard kartları tıklanabilir ve rol-duyarlı yapıldı (Yoklama, RFID Simülatör, Stajyerler, Departmanlar, Kullanıcı Yönetimi, Profilim; Faz 2/3 kartları yer tutucu). RFID Simülatörü stajyere açıldı: stajyer YALNIZCA kendi kartını okutabilir — kart sunucuda kimlikten çözülür, formdan gelen değer yok sayılır; Admin tüm kartları okutmaya devam eder; Amir'e "kartınız yok" bilgisi gösterilir. Navbar'da simülatör linki Admin+Stajyer'e görünür. Build + 20/20 test temiz.
+
 ### Faz 2 — Misafir ağı (kalp) · **Devam ediyor**
 
 - Sıradaki kapsam: TSE-Misafir sponsor akışı (`MisafirErisimTalebi`, token, voucher, rate-limit), SMTP simülasyonu (`IEmailSender`), mock personel dizini (`IPersonelDizini`), `INetworkAccessProvider` + `SimulatedNetworkAccessProvider`.
