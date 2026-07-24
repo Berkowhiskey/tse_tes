@@ -18,6 +18,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>@ViewData["Title"] — TES</title>
+    @* Tema, gövde render'ından ÖNCE uygulanır (FOUC engeli): kayıtlı tercih ya da sistem tercihi. *@
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem("tes-tema");
+                if (t !== "dark" && t !== "light") {
+                    t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-bs-theme", t);
+            } catch (e) {
+                document.documentElement.setAttribute("data-bs-theme", "light");
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="~/lib/tabler/css/tabler.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -39,6 +53,13 @@
                 @if (aktifKullanici is not null)
                 {
                     <div class="navbar-nav flex-row order-md-last">
+                        <div class="nav-item d-flex align-items-center me-1">
+                            <a href="#" id="temaDegistir" class="nav-link px-0" title="Temayı değiştir" aria-label="Açık/Koyu tema">
+                                @* Açık modda güneş (koyuya geç), koyu modda ay görünür — görünürlük site.css'te. *@
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon tema-ikon-gunes" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon tema-ikon-ay" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+                            </a>
+                        </div>
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown"
                                aria-label="Kullanıcı menüsü" aria-expanded="false">
@@ -60,6 +81,8 @@
                     </div>
 
                     <div class="collapse navbar-collapse" id="navbar-menu">
+                        @* Menü açılır gruplarla toplanır — üst-seviye link sayısı azaltılır (mobil + geniş ekran ferahlığı).
+                           Görünürlük yalnız kolaylıktır; yetki her action'da sunucuda doğrulanır. *@
                         <ul class="navbar-nav">
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">
@@ -76,66 +99,63 @@
                                     <span class="nav-link-title">Sohbet</span>
                                 </a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Yoklama" asp-action="Index">
-                                    <span class="nav-link-title">Yoklama</span>
-                                </a>
-                            </li>
-                            @if (adminMi || amirMi)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Stajyerler" asp-action="Index">
-                                        <span class="nav-link-title">Stajyerler</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Odev" asp-action="Verdiklerim">
-                                        <span class="nav-link-title">Verdiğim Ödevler</span>
-                                    </a>
-                                </li>
-                            }
-                            @if (stajyerMi)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Proje" asp-action="Index">
-                                        <span class="nav-link-title">Projem</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Odev" asp-action="Index">
-                                        <span class="nav-link-title">Ödevlerim</span>
-                                    </a>
-                                </li>
-                            }
-                            @if (adminMi)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Departman" asp-action="Index">
-                                        <span class="nav-link-title">Departmanlar</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="KullaniciYonetim" asp-action="Index">
-                                        <span class="nav-link-title">Kullanıcı Yönetimi</span>
-                                    </a>
-                                </li>
-                            }
+
+                            @* Yoklama — Admin/Stajyer için RFID simülatörüyle birlikte açılır menü; Amir'de tek link. *@
                             @if (adminMi || stajyerMi)
                             {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                        <span class="nav-link-title">Yoklama</span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Yoklama" asp-action="Index">Yoklama Kayıtları</a>
+                                        <a class="dropdown-item" asp-controller="YoklamaSimulator" asp-action="Index">RFID Simülatör</a>
+                                    </div>
+                                </li>
+                            }
+                            else
+                            {
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-controller="YoklamaSimulator" asp-action="Index">
-                                        <span class="nav-link-title">RFID Simülatör</span>
+                                    <a class="nav-link" asp-controller="Yoklama" asp-action="Index">
+                                        <span class="nav-link-title">Yoklama</span>
                                     </a>
                                 </li>
                             }
+
+                            @* Amir/Admin: stajyer takibi. *@
+                            @if (adminMi || amirMi)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                        <span class="nav-link-title">Stajyer Takibi</span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Stajyerler" asp-action="Index">Stajyerler</a>
+                                        <a class="dropdown-item" asp-controller="Odev" asp-action="Verdiklerim">Verdiğim Ödevler</a>
+                                    </div>
+                                </li>
+                            }
+
+                            @* Stajyer: kendi işleri. *@
                             @if (stajyerMi)
                             {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                        <span class="nav-link-title">İşlerim</span>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Proje" asp-action="Index">Projem</a>
+                                        <a class="dropdown-item" asp-controller="Odev" asp-action="Index">Ödevlerim</a>
+                                    </div>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-controller="Misafir" asp-action="Taleplerim">
                                         <span class="nav-link-title">TSE-Misafir</span>
                                     </a>
                                 </li>
                             }
+
+                            @* Amir: sponsor onayları. *@
                             @if (amirMi)
                             {
                                 <li class="nav-item">
@@ -144,17 +164,21 @@
                                     </a>
                                 </li>
                             }
+
+                            @* Admin: yönetim işlemleri tek açılır menüde. *@
                             @if (adminMi)
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="MisafirYonetim" asp-action="Index">
-                                        <span class="nav-link-title">Misafir Yönetimi</span>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                        <span class="nav-link-title">Yönetim</span>
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Moderasyon" asp-action="Index">
-                                        <span class="nav-link-title">Moderasyon</span>
-                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" asp-controller="Departman" asp-action="Index">Departmanlar</a>
+                                        <a class="dropdown-item" asp-controller="KullaniciYonetim" asp-action="Index">Kullanıcı Yönetimi</a>
+                                        <div class="dropdown-divider"></div>
+                                        <a class="dropdown-item" asp-controller="MisafirYonetim" asp-action="Index">Misafir Yönetimi</a>
+                                        <a class="dropdown-item" asp-controller="Moderasyon" asp-action="Index">Moderasyon</a>
+                                    </div>
                                 </li>
                             }
                         </ul>
@@ -193,6 +217,7 @@
     </div>
 
     <script src="~/lib/tabler/js/tabler.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @* Global gerçek zamanlı bildirim: her sayfada kurulur, kullanıcıya gelen mesajı toast + yumuşak sesle bildirir. *@
     @if (aktifKullanici is not null)

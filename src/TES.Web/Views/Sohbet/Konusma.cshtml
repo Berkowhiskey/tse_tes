@@ -19,7 +19,7 @@
 
 <div class="card col-lg-8 mx-auto">
     <div class="card-body">
-        <div id="mesajListesi" style="height: 420px; overflow-y: auto;" class="d-flex flex-column gap-2 mb-1">
+        <div id="mesajListesi" style="height: min(420px, 55vh); overflow-y: auto;" class="d-flex flex-column gap-2 mb-1">
             @foreach (var mesaj in Model.Mesajlar)
             {
                 var benim = mesaj.GondericiId == Model.BenId;

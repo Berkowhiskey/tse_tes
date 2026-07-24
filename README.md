@@ -25,7 +25,7 @@ Sistem **on-prem** çalışır ve **yalnızca kurum ağından** erişilir. Stajy
 | Web çatısı | ASP.NET Core **9** — **MVC** (Controller + View) |
 | Veritabanı | **MSSQL Server** + **EF Core 9** (Code-First + Migrations) |
 | Kimlik | **ASP.NET Core Identity** (hash'li parola, rol yönetimi, ilk girişte zorunlu parola değişimi) |
-| UI | **Tabler 1.4.0** (Bootstrap 5 tabanlı, MIT, jQuery'siz) — `wwwroot/lib/tabler` altında vendor'lanmış, **CDN kullanılmaz** |
+| UI | **Tabler 1.4.0** (Bootstrap 5 tabanlı, MIT, jQuery'siz) — `wwwroot/lib/tabler` altında vendor'lanmış, **CDN kullanılmaz**. Renk teması **scarlet-snow** (paleti `site.css`'te `--tblr-*` override'ı); navbar açılır menülerle gruplu; **Aç/Koyu tema** geçişi (`localStorage` + sistem tercihi, `site.js`) |
 | Gerçek zamanlı | **SignalR** (chatbox — amir ↔ stajyer; JS client vendor'lanmış, CDN yok) |
 | Test | **xUnit** |
 
@@ -159,4 +159,5 @@ dotnet ef migrations add <Ad> --project src/TES.Infrastructure --startup-project
 - [x] **Faz 3 — İş takibi:** Proje & Ödev takibi (amir atar, stajyer ilerleme raporlar)
 - [x] **Faz 4 — Sosyal:** Gönderi + moderasyon + Yorum/Beğeni
 - [x] **Faz 5 — İletişim:** Chatbox + bildirimler (SignalR)
-- [ ] **Sonrası:** mobil, basit yerel AI, KVKK sertleştirme
+- [x] **Faz 6 — Görünüm:** Responsive navbar (açılır menü gruplama), scarlet-snow renk teması + Aç/Koyu geçiş
+- [ ] **Sonrası:** mobil push, basit yerel AI, KVKK sertleştirme

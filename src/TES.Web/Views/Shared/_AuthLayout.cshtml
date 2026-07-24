@@ -4,6 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>@ViewData["Title"] — TES</title>
+    @* Tema, gövde render'ından ÖNCE uygulanır (FOUC engeli): kayıtlı tercih ya da sistem tercihi. *@
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem("tes-tema");
+                if (t !== "dark" && t !== "light") {
+                    t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+                }
+                document.documentElement.setAttribute("data-bs-theme", t);
+            } catch (e) {
+                document.documentElement.setAttribute("data-bs-theme", "light");
+            }
+        })();
+    </script>
     <link rel="stylesheet" href="~/lib/tabler/css/tabler.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -17,5 +31,6 @@
         </div>
     </div>
     <script src="~/lib/tabler/js/tabler.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 </body>
 </html>
