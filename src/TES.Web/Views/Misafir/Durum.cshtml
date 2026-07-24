@@ -1,0 +1,65 @@
+@using TES.Domain.Entities
+@model MisafirDurumViewModel
+@{
+    ViewData["Title"] = "Account Status";
+    Layout = "_AuthLayout";
+    var (etiket, renk) = Model.DurumRozeti;
+}
+
+@* Sayfa 30 saniyede bir kendini yeniler (CLAUDE.md Bölüm 8). *@
+<meta http-equiv="refresh" content="30" />
+
+<div class="card card-md">
+    <div class="card-body text-center">
+        <h2 class="h2 mb-1">Account Status</h2>
+        <p class="text-secondary mb-3">Bu sayfa 30 saniyede bir otomatik yenilenir.</p>
+
+        <div class="mb-3">
+            <span class="badge @renk fs-3 p-2">@etiket</span>
+        </div>
+
+        <dl class="row text-start mb-0">
+            <dt class="col-5">Ad Soyad</dt><dd class="col-7">@Model.Talep.AdSoyad</dd>
+            <dt class="col-5">Süre</dt><dd class="col-7">@Model.Talep.SureGun gün</dd>
+            <dt class="col-5">Talep zamanı</dt><dd class="col-7">@Model.Talep.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+
+            @if (Model.Talep.Durum == MisafirTalepDurumu.Beklemede)
+            {
+                <dt class="col-5">Onay bekleniyor</dt>
+                <dd class="col-7">@Model.Talep.SponsorEposta</dd>
+                <dt class="col-5">Son yanıt zamanı</dt>
+                <dd class="col-7">@Model.Talep.TokenSonGecerlilik.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+            }
+
+            @if (Model.Talep.Durum == MisafirTalepDurumu.Enabled)
+            {
+                <dt class="col-5">Erişim bitişi</dt>
+                <dd class="col-7">@Model.Talep.ErisimBitis?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+                <dt class="col-5">Bağlı cihaz</dt>
+                <dd class="col-7">@(Model.AgDurumu?.CihazSayisi ?? 0)</dd>
+            }
+        </dl>
+
+        @if (Model.Talep.Durum == MisafirTalepDurumu.Enabled)
+        {
+            <div class="alert alert-success mt-3 mb-0">
+                Voucher kodunuz e-posta adresinize gönderildi.
+                Diğer cihazlarınız için <a asp-action="Voucher">cihaz ekleme sayfasını</a> kullanın.
+            </div>
+        }
+        @if (Model.Talep.Durum == MisafirTalepDurumu.Beklemede)
+        {
+            <div class="alert alert-info mt-3 mb-0">
+                Sponsor süresinde yanıtlamazsa talep otomatik iptal edilir.
+            </div>
+        }
+
+        @* Ana sayfaya dönüş yalnızca giriş yapmış kullanıcıya (stajyer); anonim misafire gösterilmez. *@
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="mt-4">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-link">← Ana Sayfaya Dön</a>
+            </div>
+        }
+    </div>
+</div>

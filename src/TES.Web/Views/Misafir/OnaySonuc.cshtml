@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Karar Alındı";
+    Layout = "_AuthLayout";
+    var onaylandi = (bool)(ViewBag.Onaylandi ?? false);
+}
+
+<div class="card card-md">
+    <div class="card-body text-center">
+        @if (onaylandi)
+        {
+            <h2 class="h2 mb-2 text-success">✔ Talep Onaylandı</h2>
+            <p class="text-secondary mb-0">
+                Misafir erişimi açıldı. Voucher kodu talep sahibinin e-posta adresine gönderildi.
+            </p>
+        }
+        else
+        {
+            <h2 class="h2 mb-2 text-danger">✘ Talep Reddedildi</h2>
+            <p class="text-secondary mb-0">Talep sahibi bilgilendirildi.</p>
+        }
+    </div>
+</div>

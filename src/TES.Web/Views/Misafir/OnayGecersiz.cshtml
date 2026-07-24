@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "Bağlantı Geçersiz";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body text-center">
+        <h2 class="h2 mb-2">Bağlantı Geçersiz</h2>
+        <p class="text-secondary mb-0">
+            @(TempData["OnaySonucHata"] as string ??
+              "Bu onay bağlantısı geçersiz, süresi dolmuş veya daha önce kullanılmış. " +
+              "Talep sahibi gerekirse yeni bir talep oluşturabilir.")
+        </p>
+    </div>
+</div>

@@ -79,6 +79,30 @@ public static class VeriTohumlayici
 
         // 3) Faz 1: Departman hiyerarşisi + örnek profiller
         await Faz1SeedAsync(db, userManager, denetim);
+
+        // 4) Erken sürüm kolaylığı: e-postası eksik amirlere kurum e-postası ata.
+        await AmirEpostalariniDoldurAsync(userManager, denetim);
+    }
+
+    /// <summary>
+    /// E-postası olmayan amir hesaplarına kullanıcı adından türetilen kurum e-postası atar
+    /// (örn. deneme_amiri → deneme.amiri@tse.org.tr). Sponsor eşleşmesi ve mock dizin için gerekli.
+    /// İdempotent: e-postası olan amirlere dokunmaz.
+    /// </summary>
+    private static async Task AmirEpostalariniDoldurAsync(UserManager<Kullanici> userManager, IDenetimServisi denetim)
+    {
+        var amirler = await userManager.GetUsersInRoleAsync(Roller.Amir);
+        var guncellendi = false;
+
+        foreach (var amir in amirler.Where(a => string.IsNullOrEmpty(a.Email)))
+        {
+            var eposta = KullaniciYonetimServisi.EpostaUret(amir.UserName!);
+            await userManager.SetEmailAsync(amir, eposta);
+            guncellendi = true;
+        }
+
+        if (guncellendi)
+            await denetim.KaydetAsync("Sistem", "AmirEpostalariDolduruldu", "Eksik amir e-postaları otomatik atandı.");
     }
 
     /// <summary>Departman hiyerarşisi ve örnek amir/stajyer profilleri (idempotent).</summary>
@@ -109,6 +133,7 @@ public static class VeriTohumlayici
         AmirProfil? amirProfil = null;
         if (amirKullanici is not null)
         {
+
             amirProfil = await db.AmirProfilleri.FirstOrDefaultAsync(a => a.KullaniciId == amirKullanici.Id);
             if (amirProfil is null)
             {

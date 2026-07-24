@@ -1,0 +1,108 @@
+@using TES.Domain.Entities
+@using TES.Infrastructure.Simulation
+@model IReadOnlyList<MisafirYonetimSatiri>
+@{
+    ViewData["Title"] = "Misafir Yönetimi";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">TSE-Misafir</div>
+            <h2 class="page-title">Misafir Erişim Talepleri</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="GidenEpostalar" class="btn">📧 Giden E-postalar (Sim)</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Talep Sahibi</th>
+                    <th>Sponsor</th>
+                    <th>Süre</th>
+                    <th>Karar Durumu</th>
+                    <th>Ağ (Enforcement)</th>
+                    <th>Cihaz</th>
+                    <th class="text-end">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var satir in Model)
+                {
+                    var talep = satir.Talep;
+                    <tr>
+                        <td>
+                            @talep.AdSoyad
+                            <div class="text-secondary small">
+                                @talep.Eposta
+                                @if (talep.StajyerProfilId is not null)
+                                {
+                                    <span class="badge bg-blue-lt ms-1">Stajyer</span>
+                                }
+                            </div>
+                        </td>
+                        <td>@talep.SponsorEposta</td>
+                        <td>@talep.SureGun gün</td>
+                        <td>
+                            @switch (talep.Durum)
+                            {
+                                case MisafirTalepDurumu.Beklemede:
+                                    <span class="badge bg-yellow-lt">Beklemede</span>
+                                    break;
+                                case MisafirTalepDurumu.Enabled:
+                                    <span class="badge bg-green-lt">Enabled</span>
+                                    <div class="text-secondary small">bitiş: @talep.ErisimBitis?.ToLocalTime().ToString("dd.MM HH:mm")</div>
+                                    break;
+                                case MisafirTalepDurumu.Expired:
+                                    <span class="badge bg-secondary-lt">Expired</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-red-lt">Denied</span>
+                                    break;
+                            }
+                        </td>
+                        <td>
+                            @switch (satir.AgDurumu?.Durum)
+                            {
+                                case SimuleAgDurumu.Enabled:
+                                    <span class="badge bg-green-lt">Enabled</span>
+                                    break;
+                                case SimuleAgDurumu.Expired:
+                                    <span class="badge bg-secondary-lt">Expired</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-yellow-lt">Pending</span>
+                                    break;
+                            }
+                        </td>
+                        <td>@(satir.AgDurumu?.CihazSayisi ?? 0)</td>
+                        <td class="text-end">
+                            @if (talep.Durum == MisafirTalepDurumu.Beklemede)
+                            {
+                                <form asp-action="ManuelOnayla" asp-route-id="@talep.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Manuel Onayla</button>
+                                </form>
+                            }
+                            @if (talep.Durum is MisafirTalepDurumu.Beklemede or MisafirTalepDurumu.Enabled)
+                            {
+                                <form asp-action="Iptal" asp-route-id="@talep.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Talep iptal edilsin ve ağ erişimi kapatılsın mı?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">İptal</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-secondary">Henüz misafir talebi yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

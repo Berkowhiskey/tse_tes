@@ -137,7 +137,17 @@ dotnet ef migrations add <Ad> --project src/TES.Infrastructure --startup-project
 - Yetki **her zaman sunucuda** doğrulanır (Identity rolleri + policy-based authorization); UI'da gizlemek yeterli sayılmaz.
 - Hassas işlemler (giriş, başarısız giriş, kilitlenme, parola değişimi, moderasyon...) `DenetimKaydi` tablosuna yazılır.
 - Sırlar (connection string, SMTP vb.) depoya girmez; `dotnet user-secrets` veya ortam değişkeni kullanılır.
-- Gerçek ağ erişimi yalnızca `INetworkAccessProvider` arayüzü üzerinden verilir (MVP'de simülasyon — Faz 2).
+- Gerçek ağ erişimi yalnızca `INetworkAccessProvider` arayüzü üzerinden verilir (MVP'de simülasyon).
+
+## TSE-Misafir Akışı (Faz 2)
+
+1. **Talep:** Anonim portal (`/Misafir/Portal`) veya stajyerin "Taleplerim" sayfası — Ad Soyad, e-posta, sponsor `@tse.org.tr` adresi (mock personel dizininde doğrulanır), süre 1/3/5 gün. Sponsora saatlik rate-limit uygulanır.
+2. **Onay bekleme:** Talep sahibi "Account Status" sayfasına yönlenir (30 sn'de bir otomatik yenilenir). Sponsora **tek kullanımlık, süreli, kriptografik** token'lı onay bağlantısı e-postalanır (mock SMTP → Admin'in "Giden E-postalar (Sim)" ekranı).
+3. **Karar:** Sponsor onaylarsa talep `Enabled` olur, ağ erişimi `SimulatedNetworkAccessProvider` üzerinden açılır ve **voucher** (yalnızca hash'i saklanır) talep sahibine e-postalanır. Reddederse `Denied`; süresinde yanıtlamazsa arka plan servisi talebi **otomatik iptal** eder (`Expired`).
+4. **Cihaz ekleme:** `/Misafir/Voucher` sayfasından voucher koduyla ek cihazlar bağlanır (cihaz limiti yapılandırılabilir).
+5. **Yönetim:** Admin tüm talepleri, karar + enforcement durumunu yan yana izler; manuel onay/iptal yapabilir.
+
+> Mock sponsor dizini: `mehmet.demir@`, `fatma.kaya@`, `ali.ozkan@`, `zeynep.arslan@` (tse.org.tr). Ayarlar `appsettings.json → MisafirAyarlari` (token süresi MVP testinde 15 dk).
 
 ---
 
@@ -145,7 +155,7 @@ dotnet ef migrations add <Ad> --project src/TES.Infrastructure --startup-project
 
 - [x] **Faz 0 — İskelet:** proje kurulumu, Identity, Tabler layout, DbContext + ilk migration, seed
 - [x] **Faz 1 — Kimlik & organizasyon:** roller/profiller, Departman hiyerarşisi, Amir–Stajyer eşleştirme, Yoklama (RFID simülatörü)
-- [ ] **Faz 2 — Misafir ağı (kalp):** TSE-Misafir sponsor akışı, SMTP simülasyonu, `SimulatedNetworkAccessProvider`
+- [x] **Faz 2 — Misafir ağı (kalp):** TSE-Misafir sponsor akışı, SMTP simülasyonu, `SimulatedNetworkAccessProvider`
 - [ ] **Faz 3 — İş takibi:** Proje & Ödev takibi
 - [ ] **Faz 4 — Sosyal:** Gönderi + moderasyon + Yorum/Beğeni
 - [ ] **Faz 5 — İletişim:** Chatbox + bildirimler (SignalR)

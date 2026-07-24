@@ -1,0 +1,37 @@
+@model VoucherViewModel
+@{
+    ViewData["Title"] = "Cihaz Ekle";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body">
+        <h2 class="h2 text-center mb-2">Voucher ile Cihaz Ekle</h2>
+        <p class="text-secondary text-center mb-4">
+            Onay e-postanızdaki voucher kodunu girerek bu cihazı TSE-Misafir ağına ekleyin.
+        </p>
+
+        @if (Model.Mesaj is not null)
+        {
+            <div class="alert @(Model.Basarili == true ? "alert-success" : "alert-danger")" role="alert">
+                @Model.Mesaj
+            </div>
+        }
+
+        <form asp-action="Voucher" method="post" novalidate>
+            <div class="mb-3">
+                <label asp-for="Voucher" class="form-label"></label>
+                <input asp-for="Voucher" class="form-control text-uppercase" placeholder="XXXX-XXXX-XXXX" autofocus />
+                <span asp-validation-for="Voucher" class="text-danger small"></span>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Cihazı Ekle</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="text-center text-secondary mt-3 small">
+    <a asp-action="Portal">Yeni talep oluştur</a>
+</div>

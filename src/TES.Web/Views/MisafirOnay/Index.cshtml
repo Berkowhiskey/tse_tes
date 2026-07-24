@@ -1,0 +1,87 @@
+@using TES.Domain.Entities
+@model IReadOnlyList<MisafirErisimTalebi>
+@{
+    ViewData["Title"] = "Misafir Onayları";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">TSE-Misafir</div>
+    <h2 class="page-title">Sponsor Onaylarım</h2>
+</div>
+
+<div class="alert alert-info">
+    Aşağıda, sizin sponsor gösterildiğiniz misafir erişim talepleri listelenir.
+    Bekleyen talepleri buradan onaylayabilir veya reddedebilirsiniz.
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Talep Sahibi</th>
+                    <th>Süre</th>
+                    <th>Talep Zamanı</th>
+                    <th>Durum</th>
+                    <th class="text-end">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var talep in Model)
+                {
+                    <tr>
+                        <td>
+                            @talep.AdSoyad
+                            <div class="text-secondary small">
+                                @talep.Eposta
+                                @if (talep.StajyerProfilId is not null)
+                                {
+                                    <span class="badge bg-blue-lt ms-1">Stajyer</span>
+                                }
+                            </div>
+                        </td>
+                        <td>@talep.SureGun gün</td>
+                        <td>@talep.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            @switch (talep.Durum)
+                            {
+                                case MisafirTalepDurumu.Beklemede:
+                                    <span class="badge bg-yellow-lt">Beklemede</span>
+                                    break;
+                                case MisafirTalepDurumu.Enabled:
+                                    <span class="badge bg-green-lt">Enabled</span>
+                                    break;
+                                case MisafirTalepDurumu.Expired:
+                                    <span class="badge bg-secondary-lt">Expired</span>
+                                    break;
+                                default:
+                                    <span class="badge bg-red-lt">Denied</span>
+                                    break;
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (talep.Durum == MisafirTalepDurumu.Beklemede)
+                            {
+                                <form asp-action="Onayla" asp-route-id="@talep.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-success">✔ Onayla</button>
+                                </form>
+                                <form asp-action="Reddet" asp-route-id="@talep.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Talep reddedilsin mi?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">✘ Reddet</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="text-secondary small">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center text-secondary">Size gelen bir sponsor talebi yok.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,98 @@
+@using TES.Domain.Entities
+@model TaleplerimViewModel
+@{
+    ViewData["Title"] = "TSE-Misafir Taleplerim";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">TSE-Misafir</div>
+    <h2 class="page-title">Misafir Ağı Taleplerim</h2>
+</div>
+
+<div class="row row-cards">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Yeni Talep / Uzat</h3></div>
+            <div class="card-body">
+                <form asp-action="TalepEt" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.Eposta" class="form-label"></label>
+                        <input asp-for="Form.Eposta" class="form-control" />
+                        <span asp-validation-for="Form.Eposta" class="text-danger small"></span>
+                        <small class="form-hint">Voucher kodunuz bu adrese gönderilir.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.SponsorEposta" class="form-label"></label>
+                        <input asp-for="Form.SponsorEposta" class="form-control" placeholder="ad.soyad@tse.org.tr" />
+                        <span asp-validation-for="Form.SponsorEposta" class="text-danger small"></span>
+                        <small class="form-hint">Amirinizi sponsor gösterebilirsiniz.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Form.SureGun" class="form-label"></label>
+                        <select asp-for="Form.SureGun" class="form-select">
+                            <option value="1">1 gün</option>
+                            <option value="3">3 gün</option>
+                            <option value="5">5 gün</option>
+                        </select>
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">Talep Gönder</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Taleplerim</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>Talep</th><th>Süre</th><th>Durum</th><th class="text-end">İzle</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var talep in Model.Talepler)
+                        {
+                            <tr>
+                                <td>@talep.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                    <div class="text-secondary small">Sponsor: @talep.SponsorEposta</div>
+                                </td>
+                                <td>@talep.SureGun gün</td>
+                                <td>
+                                    @switch (talep.Durum)
+                                    {
+                                        case MisafirTalepDurumu.Beklemede:
+                                            <span class="badge bg-yellow-lt">Beklemede</span>
+                                            break;
+                                        case MisafirTalepDurumu.Enabled:
+                                            <span class="badge bg-green-lt">Enabled</span>
+                                            break;
+                                        case MisafirTalepDurumu.Expired:
+                                            <span class="badge bg-secondary-lt">Expired</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-red-lt">Denied</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Durum" asp-route-kod="@talep.TakipKodu" class="btn btn-sm">Account Status</a>
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Talepler.Count == 0)
+                        {
+                            <tr><td colspan="4" class="text-center text-secondary">Henüz talebiniz yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

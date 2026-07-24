@@ -46,6 +46,11 @@ public class KullaniciYonetimServisi(
         if (kullanici is null)
             return KullaniciOlusturmaSonucu.Hata([.. hatalar]);
 
+        // Amire otomatik kurum e-postası: kullanıcı adından türetilir (benzersizliği ondan miras alır).
+        // Bu e-posta hem sponsor eşleşmesinde hem mock personel dizininde kullanılır (erken sürüm kolaylığı).
+        var eposta = EpostaUret(kullanici.UserName!);
+        await userManager.SetEmailAsync(kullanici, eposta);
+
         db.AmirProfilleri.Add(new AmirProfil
         {
             KullaniciId = kullanici.Id,
@@ -56,8 +61,11 @@ public class KullaniciYonetimServisi(
         await db.SaveChangesAsync();
 
         await denetim.KaydetAsync(aktor, "AmirOlusturuldu", $"Kullanıcı: {kullanici.UserName}");
-        return KullaniciOlusturmaSonucu.Basari(kullanici.UserName!);
+        return KullaniciOlusturmaSonucu.Basari(kullanici.UserName!, eposta);
     }
+
+    /// <summary>Kullanıcı adından kurum e-postası üretir: "deneme_amiri" → "deneme.amiri@tse.org.tr".</summary>
+    public static string EpostaUret(string kullaniciAdi) => $"{kullaniciAdi.Replace('_', '.')}@tse.org.tr";
 
     public async Task<KullaniciOlusturmaSonucu> StajyerOlusturAsync(YeniStajyerBilgisi bilgi, string aktor)
     {

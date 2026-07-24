@@ -100,6 +100,30 @@
                                     </a>
                                 </li>
                             }
+                            @if (stajyerMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Misafir" asp-action="Taleplerim">
+                                        <span class="nav-link-title">TSE-Misafir</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (amirMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="MisafirOnay" asp-action="Index">
+                                        <span class="nav-link-title">Misafir Onaylarım</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (adminMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="MisafirYonetim" asp-action="Index">
+                                        <span class="nav-link-title">Misafir Yönetimi</span>
+                                    </a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 }

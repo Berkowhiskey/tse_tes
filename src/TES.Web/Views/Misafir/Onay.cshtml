@@ -1,0 +1,29 @@
+@model MisafirOnayViewModel
+@{
+    ViewData["Title"] = "Sponsor Onayı";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body">
+        <h2 class="h2 text-center mb-2">TSE-Misafir Sponsor Onayı</h2>
+        <p class="text-secondary text-center mb-4">
+            Aşağıdaki kişi, TSE-Misafir ağına erişim için sizi sponsor gösterdi.
+            Bu bağlantı <strong>tek kullanımlıktır</strong>.
+        </p>
+
+        <dl class="row">
+            <dt class="col-5">Ad Soyad</dt><dd class="col-7">@Model.Talep.AdSoyad</dd>
+            <dt class="col-5">E-posta</dt><dd class="col-7">@Model.Talep.Eposta</dd>
+            <dt class="col-5">İstenen süre</dt><dd class="col-7">@Model.Talep.SureGun gün</dd>
+            <dt class="col-5">Talep zamanı</dt>
+            <dd class="col-7">@Model.Talep.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</dd>
+        </dl>
+
+        <form asp-action="OnayKarar" method="post" class="d-flex gap-2">
+            <input type="hidden" name="token" value="@Model.Token" />
+            <button type="submit" name="onay" value="true" class="btn btn-success w-50">✔ Onayla</button>
+            <button type="submit" name="onay" value="false" class="btn btn-danger w-50">✘ Reddet</button>
+        </form>
+    </div>
+</div>

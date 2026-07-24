@@ -85,14 +85,50 @@
         </a>
     </div>
 
-    <div class="col-sm-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">🌐 TSE-Misafir</h3>
-                <p class="text-secondary">Sponsor onaylı misafir ağı erişimi (Faz 2'de gelecek).</p>
+    @if (adminMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="MisafirYonetim" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🌐 TSE-Misafir Yönetimi</h3>
+                    <p class="text-secondary">Talepler, manuel bağlama, ağ durumu ve giden e-postalar.</p>
+                </div>
+            </a>
+        </div>
+    }
+    else if (amirMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="MisafirOnay" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🌐 Misafir Onaylarım</h3>
+                    <p class="text-secondary">Sponsor gösterildiğiniz misafir taleplerini onaylayın.</p>
+                </div>
+            </a>
+        </div>
+    }
+    else if (stajyerMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Misafir" asp-action="Taleplerim" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🌐 TSE-Misafir</h3>
+                    <p class="text-secondary">Misafir ağı erişimi talep edin veya uzatın.</p>
+                </div>
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="col-sm-6 col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">🌐 TSE-Misafir</h3>
+                    <p class="text-secondary">Sponsor onay bağlantıları e-postanıza gelir.</p>
+                </div>
             </div>
         </div>
-    </div>
+    }
 
     <div class="col-sm-6 col-lg-4">
         <div class="card">

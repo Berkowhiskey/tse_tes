@@ -56,7 +56,7 @@ public class KullaniciYonetimController(
             return View(model);
         }
 
-        TempData["Basari"] = $"Amir oluşturuldu. Kullanıcı adı: {sonuc.KullaniciAdi} — ilk girişte parola değişimi zorunludur.";
+        TempData["Basari"] = $"Amir oluşturuldu. Kullanıcı adı: {sonuc.KullaniciAdi}, e-posta: {sonuc.Eposta} — ilk girişte parola değişimi zorunludur.";
         return RedirectToAction(nameof(Index));
     }
 

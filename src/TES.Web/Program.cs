@@ -4,8 +4,10 @@ using TES.Domain.Sabitler;
 using TES.Infrastructure.Data;
 using TES.Infrastructure.Identity;
 using TES.Infrastructure.Services;
+using TES.Infrastructure.Simulation;
 using TES.Web;
 using TES.Web.Filters;
+using TES.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +59,15 @@ builder.Services.AddScoped<IKullaniciYonetimServisi, KullaniciYonetimServisi>();
 builder.Services.AddScoped<IStajyerSorguServisi, StajyerSorguServisi>();
 builder.Services.AddScoped<IYoklamaServisi, YoklamaServisi>();
 builder.Services.AddScoped<IProfilServisi, ProfilServisi>();
+
+// TSE-Misafir (Faz 2): ayarlar + simülasyon bileşenleri + karar servisi.
+// Gerçek sistemler arayüz arkasında simüle edilir (CLAUDE.md Bölüm 3 ve 9).
+builder.Services.Configure<MisafirAyarlari>(builder.Configuration.GetSection(MisafirAyarlari.Bolum));
+builder.Services.AddScoped<IEmailSender, MockEmailSender>();
+builder.Services.AddScoped<IPersonelDizini, MockPersonelDizini>();
+builder.Services.AddScoped<INetworkAccessProvider, SimulatedNetworkAccessProvider>();
+builder.Services.AddScoped<IMisafirTalepServisi, MisafirTalepServisi>();
+builder.Services.AddHostedService<MisafirTemizlikServisi>();
 
 builder.Services.AddControllersWithViews(o =>
 {

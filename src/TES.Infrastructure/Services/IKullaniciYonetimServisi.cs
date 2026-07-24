@@ -21,10 +21,12 @@ public record YeniStajyerBilgisi(
     string? Bolum,
     int? AmirProfilId);
 
-public record KullaniciOlusturmaSonucu(bool Basarili, string? KullaniciAdi, IReadOnlyList<string> Hatalar)
+public record KullaniciOlusturmaSonucu(bool Basarili, string? KullaniciAdi, string? Eposta, IReadOnlyList<string> Hatalar)
 {
-    public static KullaniciOlusturmaSonucu Basari(string kullaniciAdi) => new(true, kullaniciAdi, []);
-    public static KullaniciOlusturmaSonucu Hata(params string[] hatalar) => new(false, null, hatalar);
+    public static KullaniciOlusturmaSonucu Basari(string kullaniciAdi, string? eposta = null) =>
+        new(true, kullaniciAdi, eposta, []);
+
+    public static KullaniciOlusturmaSonucu Hata(params string[] hatalar) => new(false, null, null, hatalar);
 }
 
 /// <summary>Seçim listeleri ve yönetim ekranları için amir satırı.</summary>

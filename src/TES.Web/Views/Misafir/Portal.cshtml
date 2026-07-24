@@ -1,0 +1,56 @@
+@model MisafirTalepFormViewModel
+@{
+    ViewData["Title"] = "TSE-Misafir Erişim Talebi";
+    Layout = "_AuthLayout";
+}
+
+<div class="card card-md">
+    <div class="card-body">
+        <h2 class="h2 text-center mb-2">TSE-Misafir Ağı</h2>
+        <p class="text-secondary text-center mb-4">
+            Erişim için bir TSE personelini sponsor göstermeniz gerekir.
+            Sponsorunuza tek kullanımlık onay bağlantısı e-postayla iletilir.
+        </p>
+
+        <form asp-action="Portal" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="AdSoyad" class="form-label"></label>
+                <input asp-for="AdSoyad" class="form-control" autofocus />
+                <span asp-validation-for="AdSoyad" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Eposta" class="form-label"></label>
+                <input asp-for="Eposta" class="form-control" />
+                <span asp-validation-for="Eposta" class="text-danger small"></span>
+                <small class="form-hint">Onay sonrası voucher kodunuz bu adrese gönderilir.</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SponsorEposta" class="form-label"></label>
+                <input asp-for="SponsorEposta" class="form-control" placeholder="ad.soyad@tse.org.tr" />
+                <span asp-validation-for="SponsorEposta" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SureGun" class="form-label"></label>
+                <select asp-for="SureGun" class="form-select">
+                    <option value="1">1 gün</option>
+                    <option value="3">3 gün</option>
+                    <option value="5">5 gün</option>
+                </select>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn btn-primary w-100">Talep Gönder</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="text-center text-secondary mt-3 small">
+    Voucher kodunuz var mı? <a asp-action="Voucher">Cihaz ekleyin</a> ·
+    <a asp-controller="Hesap" asp-action="Giris">Girişe dön</a>
+</div>

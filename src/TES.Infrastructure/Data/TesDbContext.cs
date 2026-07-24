@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TES.Domain.Entities;
 using TES.Infrastructure.Identity;
+using TES.Infrastructure.Simulation;
 
 namespace TES.Infrastructure.Data;
 
@@ -13,6 +14,9 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
     public DbSet<AmirProfil> AmirProfilleri => Set<AmirProfil>();
     public DbSet<StajyerProfil> StajyerProfilleri => Set<StajyerProfil>();
     public DbSet<YoklamaKaydi> YoklamaKayitlari => Set<YoklamaKaydi>();
+    public DbSet<MisafirErisimTalebi> MisafirErisimTalepleri => Set<MisafirErisimTalebi>();
+    public DbSet<GidenEposta> GidenEpostalar => Set<GidenEposta>();
+    public DbSet<SimuleAgErisimi> SimuleAgErisimleri => Set<SimuleAgErisimi>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -91,6 +95,38 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
                 .WithMany(x => x.YoklamaKayitlari)
                 .HasForeignKey(x => x.StajyerProfilId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<MisafirErisimTalebi>(e =>
+        {
+            e.Property(x => x.AdSoyad).HasMaxLength(128);
+            e.Property(x => x.Eposta).HasMaxLength(256);
+            e.Property(x => x.SponsorEposta).HasMaxLength(256);
+            e.Property(x => x.TokenHash).HasMaxLength(64);
+            e.Property(x => x.VoucherHash).HasMaxLength(64);
+            e.Property(x => x.KarariVeren).HasMaxLength(256);
+
+            e.HasIndex(x => x.TakipKodu).IsUnique();
+            e.HasIndex(x => x.TokenHash).IsUnique();
+            e.HasIndex(x => new { x.SponsorEposta, x.OlusturmaZamani }); // rate-limit sorgusu
+            e.HasIndex(x => x.Durum);
+
+            e.HasOne(x => x.StajyerProfil)
+                .WithMany()
+                .HasForeignKey(x => x.StajyerProfilId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<GidenEposta>(e =>
+        {
+            e.Property(x => x.Kime).HasMaxLength(256);
+            e.Property(x => x.Konu).HasMaxLength(256);
+            e.HasIndex(x => x.Zaman);
+        });
+
+        builder.Entity<SimuleAgErisimi>(e =>
+        {
+            e.HasIndex(x => x.MisafirErisimTalebiId).IsUnique();
         });
     }
 }
