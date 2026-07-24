@@ -27,6 +27,19 @@
     </div>
 
     <div class="col-sm-6 col-lg-4">
+        <a asp-controller="Sohbet" asp-action="Index" class="card card-link">
+            <div class="card-body">
+                <h3 class="card-title">💌 Sohbet</h3>
+                <p class="text-secondary">
+                    @(adminMi ? "Amir–stajyer konuşmalarını izleyin."
+                        : amirMi ? "Stajyerlerinizle mesajlaşın."
+                        : "Amirinizle mesajlaşın.")
+                </p>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
         <a asp-controller="Yoklama" asp-action="Index" class="card card-link">
             <div class="card-body">
                 <h3 class="card-title">🕐 Yoklama</h3>

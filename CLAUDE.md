@@ -279,6 +279,12 @@ Bir özellik; yetkilendirmesi sunucuda doğrulanmış, doğrulama/hata durumlar�
 - **Tamamlandı [24.07.2026 11:05]** — Web: `GonderiController` (feed/oluştur/yorum ekle-sil/beğen/gönderi sil) + `ModerasyonController` (Admin: bekleyenler/onayla/gerekçeli reddet). Feed kartları (rozet, beğeni, yorum, kaldır), red gerekçesi sahibine gösteriliyor. Kullanıcı içeriği Razor ile encode (XSS). Navbar "Sosyal Akış" (herkes) + "Moderasyon" (Admin); dashboard kartları.
 - **Tamamlandı [24.07.2026 11:12]** — Testler: `SosyalServisTests` (12 test: stajyer→Beklemede, amir/admin→Onaylandi, bekleyen başkasına görünmez/sahibine görünür, onay sonrası herkese, gerekçeli red, sahiplik silme, admin her içeriği siler, yorum yalnız onaylıya, beğeni toggle/tek beğeni, bekleyene beğeni engeli). Toplam **60/60 geçti**. Duman: migration uygulandı, Gonderiler/Yorumlar/Begeniler tabloları + rota yetki yönlendirmeleri doğrulandı. `dotnet build` + `dotnet test` temiz.
 
-### Faz 5 — İletişim · **Sırada**
+### Faz 5 — İletişim · **Tamamlandı [24.07.2026 13:27]**
 
-- Kapsam: Chatbox (amir ↔ stajyer) + bildirimler (SignalR).
+- **Tamamlandı [24.07.2026 13:05]** — Domain: `SohbetMesaji` (GondericiId, AliciId, Icerik, Zaman, OkunduMu). `TesDbContext` indeksleri: (GondericiId, AliciId, Zaman) ve (AliciId, OkunduMu). Migration `Faz5Iletisim`.
+- **Tamamlandı [24.07.2026 13:12]** — `SohbetServisi`: `KonusabilirlerMiAsync` (amir↔stajyer eşleşmesi, yön bağımsız — SUNUCUDA), `KonusmalarimAsync` (stajyer→amiri, amir→stajyerleri, okunmamış sayacı), `AdminKonusmalariAsync` (izleme — mesajı olan çiftler), `MesajlariGetirAsync` (yetki: taraf olmak veya admin; admin izlerken okundu İŞARETLEMEZ), `MesajGonderAsync` (izin kontrolü; admin gönderemez), `OkunmamisToplamAsync`.
+- **Tamamlandı [24.07.2026 13:18]** — SignalR: `ChatHub` (`[Authorize]`, `GonderMesaj` — gönderen kimliği Context'ten, izin serviste doğrulanır, `Clients.User(...)` ile iki tarafa iletim). `Program.cs`: `AddSignalR()` + `MapHub<ChatHub>("/chatHub")`. SignalR JS client `wwwroot/lib/signalr`'a vendor'landı (CDN yok).
+- **Tamamlandı [24.07.2026 13:22]** — Web: `SohbetController` (konuşma listesi + pencere; admin izleme salt-okunur) ve view'lar (gerçek zamanlı mesajlaşma, mesaj balonları JS'te `textContent` ile eklenir — XSS koruması). Navbar + dashboard "Sohbet" (rol-duyarlı).
+- **Tamamlandı [24.07.2026 13:27]** — Testler: `SohbetServisiTests` (11 test: amir kendi stajyeriyle konuşur, başka stajyer/amir reddi, izinli/izinsiz mesaj, boş içerik, okundu işaretleme, yabancı taraf yetkisiz, admin izler ama okundu saymaz, konuşma listeleri). Toplam **71/71 geçti**. Duman: migration uygulandı, SohbetMesajlari tablosu + vendor'lı signalr.min.js (200) + hub negotiate anonim erişimde login'e 302 (hub `[Authorize]` korumalı). `dotnet build` + `dotnet test` temiz.
+
+> **MVP faz planı tamamlandı (Faz 0-5).** Sonraki adımlar (CLAUDE.md Bölüm 12): mobil iyileştirme, basit yerel AI, KVKK sertleştirme.

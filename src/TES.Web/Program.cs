@@ -7,6 +7,7 @@ using TES.Infrastructure.Services;
 using TES.Infrastructure.Simulation;
 using TES.Web;
 using TES.Web.Filters;
+using TES.Web.Hubs;
 using TES.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +63,10 @@ builder.Services.AddScoped<IProfilServisi, ProfilServisi>();
 builder.Services.AddScoped<IProjeServisi, ProjeServisi>();
 builder.Services.AddScoped<IOdevServisi, OdevServisi>();
 builder.Services.AddScoped<ISosyalServis, SosyalServis>();
+builder.Services.AddScoped<ISohbetServisi, SohbetServisi>();
+
+// SignalR — chatbox + bildirimler (Faz 5).
+builder.Services.AddSignalR();
 
 // TSE-Misafir (Faz 2): ayarlar + simülasyon bileşenleri + karar servisi.
 // Gerçek sistemler arayüz arkasında simüle edilir (CLAUDE.md Bölüm 3 ve 9).
@@ -98,6 +103,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.MapHub<ChatHub>("/chatHub");
 
 // Geliştirmede migration + seed otomatik uygulanır.
 if (app.Environment.IsDevelopment())

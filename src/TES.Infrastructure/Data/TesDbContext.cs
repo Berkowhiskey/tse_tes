@@ -19,6 +19,7 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
     public DbSet<Gonderi> Gonderiler => Set<Gonderi>();
     public DbSet<Yorum> Yorumlar => Set<Yorum>();
     public DbSet<Begeni> Begeniler => Set<Begeni>();
+    public DbSet<SohbetMesaji> SohbetMesajlari => Set<SohbetMesaji>();
     public DbSet<MisafirErisimTalebi> MisafirErisimTalepleri => Set<MisafirErisimTalebi>();
     public DbSet<GidenEposta> GidenEpostalar => Set<GidenEposta>();
     public DbSet<SimuleAgErisimi> SimuleAgErisimleri => Set<SimuleAgErisimi>();
@@ -166,6 +167,16 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
                 .WithMany(x => x.Begeniler)
                 .HasForeignKey(x => x.GonderiId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<SohbetMesaji>(e =>
+        {
+            e.Property(x => x.GondericiId).HasMaxLength(450);
+            e.Property(x => x.AliciId).HasMaxLength(450);
+            e.Property(x => x.Icerik).HasMaxLength(2000);
+            // İki kişi arasındaki konuşmayı zamanla çekmek + okunmamışları saymak için.
+            e.HasIndex(x => new { x.GondericiId, x.AliciId, x.Zaman });
+            e.HasIndex(x => new { x.AliciId, x.OkunduMu });
         });
 
         builder.Entity<MisafirErisimTalebi>(e =>

@@ -1,0 +1,57 @@
+@model SohbetIndexViewModel
+@{
+    ViewData["Title"] = "Sohbet";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">İletişim</div>
+    <h2 class="page-title">Sohbet</h2>
+</div>
+
+@if (Model.AdminMi)
+{
+    <div class="alert alert-info">İzleme modu: amir–stajyer konuşmalarını görüntüleyebilirsiniz (salt okunur).</div>
+
+    <div class="card">
+        <div class="list-group list-group-flush">
+            @foreach (var cift in Model.AdminKonusmalari)
+            {
+                <a asp-action="Konusma" asp-route-karsiId="@cift.StajyerId" asp-route-benId="@cift.AmirId"
+                   class="list-group-item list-group-item-action">
+                    <strong>@cift.AmirAdSoyad</strong> <span class="text-secondary">↔</span> <strong>@cift.StajyerAdSoyad</strong>
+                </a>
+            }
+            @if (Model.AdminKonusmalari.Count == 0)
+            {
+                <div class="list-group-item text-center text-secondary">Henüz konuşma yok.</div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="list-group list-group-flush">
+            @foreach (var kisi in Model.Konusmalar)
+            {
+                <a asp-action="Konusma" asp-route-karsiId="@kisi.KullaniciId"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span>
+                        <span class="avatar avatar-sm me-2">@(kisi.AdSoyad.Length > 0 ? kisi.AdSoyad.Substring(0, 1) : "?")</span>
+                        @kisi.AdSoyad
+                    </span>
+                    @if (kisi.OkunmamisSayisi > 0)
+                    {
+                        <span class="badge bg-red">@kisi.OkunmamisSayisi</span>
+                    }
+                </a>
+            }
+            @if (Model.Konusmalar.Count == 0)
+            {
+                <div class="list-group-item text-center text-secondary">
+                    Henüz bir konuşma partneriniz yok. (Amir–stajyer eşleştirmesi gerekir.)
+                </div>
+            }
+        </div>
+    </div>
+}

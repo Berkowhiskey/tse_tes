@@ -1,0 +1,130 @@
+@model SohbetPencereViewModel
+@{
+    ViewData["Title"] = $"Sohbet — {Model.KarsiAdSoyad}";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <div class="page-pretitle">İletişim</div>
+            <h2 class="page-title">@Model.KarsiAdSoyad</h2>
+        </div>
+        <div class="col-auto">
+            <a asp-action="Index" class="btn">← Konuşmalar</a>
+        </div>
+    </div>
+</div>
+
+<div class="card col-lg-8 mx-auto">
+    <div class="card-body">
+        <div id="mesajListesi" style="height: 420px; overflow-y: auto;" class="d-flex flex-column gap-2 mb-3">
+            @foreach (var mesaj in Model.Mesajlar)
+            {
+                var benim = mesaj.GondericiId == Model.BenId;
+                <div class="d-flex @(benim ? "justify-content-end" : "justify-content-start")">
+                    <div class="px-3 py-2 rounded @(benim ? "bg-primary text-white" : "bg-secondary-lt")" style="max-width: 75%;">
+                        <div style="white-space: pre-wrap; word-break: break-word;">@mesaj.Icerik</div>
+                        <div class="small @(benim ? "text-white-50" : "text-secondary")" style="text-align: right;">
+                            @mesaj.Zaman.ToLocalTime().ToString("dd.MM HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (Model.SaltOkunur)
+        {
+            <div class="alert alert-secondary mb-0 text-center">İzleme modu — mesaj gönderemezsiniz.</div>
+        }
+        else
+        {
+            <form id="mesajFormu" class="d-flex gap-2">
+                <input type="text" id="mesajKutusu" class="form-control" placeholder="Mesaj yazın..." maxlength="2000" autocomplete="off" autofocus />
+                <button type="submit" id="gonderBtn" class="btn btn-primary">Gönder</button>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script>
+        (function () {
+            const benId = @Html.Raw(Json.Serialize(Model.BenId));
+            const karsiId = @Html.Raw(Json.Serialize(Model.KarsiId));
+            const saltOkunur = @(Model.SaltOkunur ? "true" : "false");
+
+            const liste = document.getElementById("mesajListesi");
+
+            function altaKaydir() { liste.scrollTop = liste.scrollHeight; }
+            altaKaydir();
+
+            // Mesaj balonunu güvenli biçimde ekler (XSS: textContent kullanılır, innerHTML DEĞİL).
+            function mesajEkle(icerik, zamanIso, benim) {
+                const satir = document.createElement("div");
+                satir.className = "d-flex " + (benim ? "justify-content-end" : "justify-content-start");
+
+                const balon = document.createElement("div");
+                balon.className = "px-3 py-2 rounded " + (benim ? "bg-primary text-white" : "bg-secondary-lt");
+                balon.style.maxWidth = "75%";
+
+                const metin = document.createElement("div");
+                metin.style.whiteSpace = "pre-wrap";
+                metin.style.wordBreak = "break-word";
+                metin.textContent = icerik;
+
+                const zaman = document.createElement("div");
+                zaman.className = "small " + (benim ? "text-white-50" : "text-secondary");
+                zaman.style.textAlign = "right";
+                const d = new Date(zamanIso);
+                zaman.textContent = d.toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+                balon.appendChild(metin);
+                balon.appendChild(zaman);
+                satir.appendChild(balon);
+                liste.appendChild(satir);
+                altaKaydir();
+            }
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chatHub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("MesajAlindi", function (m) {
+                // Yalnızca bu konuşmaya ait mesajları göster.
+                const buKonusma = (m.gondericiId === benId && m.aliciId === karsiId) ||
+                                  (m.gondericiId === karsiId && m.aliciId === benId);
+                if (buKonusma) {
+                    mesajEkle(m.icerik, m.zaman, m.gondericiId === benId);
+                }
+            });
+
+            connection.start().catch(function (err) { console.error(err.toString()); });
+
+            if (!saltOkunur) {
+                const form = document.getElementById("mesajFormu");
+                const kutu = document.getElementById("mesajKutusu");
+                const btn = document.getElementById("gonderBtn");
+
+                form.addEventListener("submit", async function (e) {
+                    e.preventDefault();
+                    const icerik = kutu.value.trim();
+                    if (!icerik) return;
+
+                    btn.disabled = true;
+                    try {
+                        await connection.invoke("GonderMesaj", karsiId, icerik);
+                        kutu.value = "";
+                    } catch (err) {
+                        console.error(err.toString());
+                        alert("Mesaj gönderilemedi: " + (err.message || err));
+                    } finally {
+                        btn.disabled = false;
+                        kutu.focus();
+                    }
+                });
+            }
+        })();
+    </script>
+}
