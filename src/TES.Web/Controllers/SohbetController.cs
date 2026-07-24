@@ -36,8 +36,10 @@ public class SohbetController(ISohbetServisi sohbetServisi) : Controller
         // Admin izlerken hangi tarafın gözünden bakacağını "benId" ile seçer; diğer roller kendisidir.
         var etkinBen = yetki.IsAdmin && !string.IsNullOrEmpty(benId) ? benId : AktifKullaniciId();
 
+        // Okundu işaretleme gerçek zamanlı olarak hub'a (OkunduBildir) bırakılır ki karşı taraf
+        // "Okundu" bilgisini anlık alsın. Burada yalnızca mesajları getiriyoruz.
         var (yetkili, mesajlar) = await sohbetServisi.MesajlariGetirAsync(
-            etkinBen, karsiId, yetki, okunduIsaretle: !yetki.IsAdmin);
+            etkinBen, karsiId, yetki, okunduIsaretle: false);
 
         if (!yetkili)
             return Forbid();

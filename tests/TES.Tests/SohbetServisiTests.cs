@@ -135,6 +135,36 @@ public class SohbetServisiTests : IDisposable
     }
 
     [Fact]
+    public async Task OkunduIsaretle_KarsidanGelenleri_OkunduYapar_VeDegisimBildirir()
+    {
+        // stajyer → amir iki mesaj (amir'in gelen kutusunda okunmamış)
+        await _servis.MesajGonderAsync(_stajyerId, _amirId, "Bir");
+        await _servis.MesajGonderAsync(_stajyerId, _amirId, "İki");
+        Assert.Equal(2, await _servis.OkunmamisToplamAsync(_amirId));
+
+        // amir okur: karsiId = stajyer
+        var degisti = await _servis.OkunduIsaretleAsync(_amirId, _stajyerId);
+
+        Assert.True(degisti);
+        Assert.Equal(0, await _servis.OkunmamisToplamAsync(_amirId));
+
+        // Tekrar çağrı: değişecek bir şey yok → false (gereksiz "Okundu" bildirimi gönderilmez).
+        Assert.False(await _servis.OkunduIsaretleAsync(_amirId, _stajyerId));
+    }
+
+    [Fact]
+    public async Task OkunduIsaretle_KarsiTarafinGelenKutusunu_Etkilemez()
+    {
+        // amir → stajyer mesajı (stajyer'in gelen kutusunda okunmamış)
+        await _servis.MesajGonderAsync(_amirId, _stajyerId, "Selam");
+
+        // amir kendi penceresini açıp OkunduBildir çağırsa bile, stajyer'e giden mesaj okunmamış kalır.
+        await _servis.OkunduIsaretleAsync(_amirId, _stajyerId);
+
+        Assert.Equal(1, await _servis.OkunmamisToplamAsync(_stajyerId));
+    }
+
+    [Fact]
     public async Task Konusmalarim_Amir_StajyerleriniGetirir()
     {
         var amirYetki = new YetkiBaglami(_amirId, false, true, false);

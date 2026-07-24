@@ -40,5 +40,11 @@ public interface ISohbetServisi
     /// <summary>Kullanıcının toplam okunmamış mesaj sayısı (navbar bildirimi).</summary>
     Task<int> OkunmamisToplamAsync(string kullaniciId);
 
+    /// <summary>
+    /// karsiId'den benId'ye gelen okunmamış mesajları okundu işaretler (gerçek zamanlı "Okundu").
+    /// En az bir mesaj işaretlendiyse true döner.
+    /// </summary>
+    Task<bool> OkunduIsaretleAsync(string benId, string karsiId);
+
     Task<string> AdSoyadAsync(string kullaniciId);
 }

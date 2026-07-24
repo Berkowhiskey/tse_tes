@@ -1,6 +1,8 @@
 @model SohbetPencereViewModel
 @{
     ViewData["Title"] = $"Sohbet — {Model.KarsiAdSoyad}";
+    var sonBenim = Model.Mesajlar.LastOrDefault(m => m.GondericiId == Model.BenId);
+    var baslangicOkundu = sonBenim?.OkunduMu == true;
 }
 
 <div class="page-header d-print-none mb-3">
@@ -17,7 +19,7 @@
 
 <div class="card col-lg-8 mx-auto">
     <div class="card-body">
-        <div id="mesajListesi" style="height: 420px; overflow-y: auto;" class="d-flex flex-column gap-2 mb-3">
+        <div id="mesajListesi" style="height: 420px; overflow-y: auto;" class="d-flex flex-column gap-2 mb-1">
             @foreach (var mesaj in Model.Mesajlar)
             {
                 var benim = mesaj.GondericiId == Model.BenId;
@@ -30,6 +32,12 @@
                     </div>
                 </div>
             }
+        </div>
+
+        @* "Yazıyor..." ve "Okundu" göstergeleri *@
+        <div class="d-flex justify-content-between align-items-center mb-2" style="min-height: 1.25rem">
+            <span id="yaziyorGosterge" class="small text-secondary fst-italic"></span>
+            <span id="okunduGosterge" class="small text-secondary">@(baslangicOkundu ? "Okundu ✓✓" : "")</span>
         </div>
 
         @if (Model.SaltOkunur)
@@ -47,38 +55,47 @@
 </div>
 
 @section Scripts {
-    <script src="~/lib/signalr/signalr.min.js"></script>
     <script>
         (function () {
             const benId = @Html.Raw(Json.Serialize(Model.BenId));
             const karsiId = @Html.Raw(Json.Serialize(Model.KarsiId));
+            const karsiAd = @Html.Raw(Json.Serialize(Model.KarsiAdSoyad));
             const saltOkunur = @(Model.SaltOkunur ? "true" : "false");
 
             const liste = document.getElementById("mesajListesi");
+            const yaziyorEl = document.getElementById("yaziyorGosterge");
+            const okunduEl = document.getElementById("okunduGosterge");
+            const hub = window.tesHub;
+
+            // Bu konuşma açık: global bildirim (toast) bu kişiden gelen mesajlar için susar.
+            window.tesAktifKonusma = karsiId;
+
+            let benimSonMesajVar = @( (sonBenim is not null).ToString().ToLowerInvariant() );
+            let yaziyorTimer = null, sonYaziyorGonderim = 0;
 
             function altaKaydir() { liste.scrollTop = liste.scrollHeight; }
             altaKaydir();
 
-            // Mesaj balonunu güvenli biçimde ekler (XSS: textContent kullanılır, innerHTML DEĞİL).
+            function okunduGoster(goster) {
+                okunduEl.textContent = goster ? "Okundu ✓✓" : "";
+            }
+            function yaziyorGizle() { yaziyorEl.textContent = ""; }
+
+            // Mesaj balonunu güvenli biçimde ekler (XSS: textContent, innerHTML DEĞİL).
             function mesajEkle(icerik, zamanIso, benim) {
                 const satir = document.createElement("div");
                 satir.className = "d-flex " + (benim ? "justify-content-end" : "justify-content-start");
-
                 const balon = document.createElement("div");
                 balon.className = "px-3 py-2 rounded " + (benim ? "bg-primary text-white" : "bg-secondary-lt");
                 balon.style.maxWidth = "75%";
-
                 const metin = document.createElement("div");
                 metin.style.whiteSpace = "pre-wrap";
                 metin.style.wordBreak = "break-word";
                 metin.textContent = icerik;
-
                 const zaman = document.createElement("div");
                 zaman.className = "small " + (benim ? "text-white-50" : "text-secondary");
                 zaman.style.textAlign = "right";
-                const d = new Date(zamanIso);
-                zaman.textContent = d.toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-
+                zaman.textContent = new Date(zamanIso).toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
                 balon.appendChild(metin);
                 balon.appendChild(zaman);
                 satir.appendChild(balon);
@@ -86,39 +103,76 @@
                 altaKaydir();
             }
 
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/chatHub")
-                .withAutomaticReconnect()
-                .build();
+            if (hub) {
+                hub.on("MesajAlindi", function (m) {
+                    const buKonusma = (m.gondericiId === benId && m.aliciId === karsiId) ||
+                                      (m.gondericiId === karsiId && m.aliciId === benId);
+                    if (!buKonusma) return;
 
-            connection.on("MesajAlindi", function (m) {
-                // Yalnızca bu konuşmaya ait mesajları göster.
-                const buKonusma = (m.gondericiId === benId && m.aliciId === karsiId) ||
-                                  (m.gondericiId === karsiId && m.aliciId === benId);
-                if (buKonusma) {
-                    mesajEkle(m.icerik, m.zaman, m.gondericiId === benId);
+                    const benim = m.gondericiId === benId;
+                    mesajEkle(m.icerik, m.zaman, benim);
+
+                    if (benim) {
+                        benimSonMesajVar = true;
+                        okunduGoster(false); // yeni mesaj gönderdim; karşı okuyunca güncellenir
+                    } else {
+                        // Karşıdan geldi ve ben bu konuşmadayım → okundu bildir + yazıyor'u temizle
+                        yaziyorGizle();
+                        if (window.tesHubReady) window.tesHubReady.then(function () { hub.invoke("OkunduBildir", karsiId).catch(function(){}); });
+                    }
+                });
+
+                hub.on("Yaziyor", function (fromId) {
+                    if (fromId !== karsiId) return;
+                    yaziyorEl.textContent = karsiAd + " yazıyor...";
+                    clearTimeout(yaziyorTimer);
+                    yaziyorTimer = setTimeout(yaziyorGizle, 3000);
+                });
+
+                hub.on("Okundu", function (fromId) {
+                    if (fromId !== karsiId) return;
+                    if (benimSonMesajVar) okunduGoster(true);
+                });
+
+                // Sayfa açılışında: karşının bana gönderdiklerini okundu işaretle (ve karşıya bildir).
+                if (!saltOkunur && window.tesHubReady) {
+                    window.tesHubReady.then(function () { hub.invoke("OkunduBildir", karsiId).catch(function(){}); });
                 }
-            });
 
-            connection.start().catch(function (err) { console.error(err.toString()); });
+                // Admin izleme: konuşma grubuna katılarak mesajları CANLI al. Reconnect'te tekrar katıl.
+                if (saltOkunur) {
+                    function izlemeyeKatil() { hub.invoke("IzlemeyeBasla", benId, karsiId).catch(function(){}); }
+                    if (window.tesHubReady) window.tesHubReady.then(izlemeyeKatil);
+                    hub.onreconnected(izlemeyeKatil);
+                }
+            }
 
-            if (!saltOkunur) {
+            if (!saltOkunur && hub) {
                 const form = document.getElementById("mesajFormu");
                 const kutu = document.getElementById("mesajKutusu");
                 const btn = document.getElementById("gonderBtn");
+
+                // Yazarken karşıya "yazıyor" sinyali (throttle ~1.5sn).
+                kutu.addEventListener("input", function () {
+                    const now = Date.now();
+                    if (now - sonYaziyorGonderim > 1500) {
+                        sonYaziyorGonderim = now;
+                        if (window.tesHubReady) window.tesHubReady.then(function () { hub.invoke("Yaziyor", karsiId).catch(function(){}); });
+                    }
+                });
 
                 form.addEventListener("submit", async function (e) {
                     e.preventDefault();
                     const icerik = kutu.value.trim();
                     if (!icerik) return;
-
                     btn.disabled = true;
                     try {
-                        await connection.invoke("GonderMesaj", karsiId, icerik);
+                        if (window.tesHubReady) await window.tesHubReady;
+                        await hub.invoke("GonderMesaj", karsiId, icerik);
                         kutu.value = "";
                     } catch (err) {
-                        console.error(err.toString());
-                        alert("Mesaj gönderilemedi: " + (err.message || err));
+                        console.error(err && err.toString());
+                        alert("Mesaj gönderilemedi: " + (err && (err.message || err)));
                     } finally {
                         btn.disabled = false;
                         kutu.focus();

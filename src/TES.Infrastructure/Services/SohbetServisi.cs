@@ -161,6 +161,22 @@ public class SohbetServisi(TesDbContext db) : ISohbetServisi
     public Task<int> OkunmamisToplamAsync(string kullaniciId) =>
         db.SohbetMesajlari.CountAsync(m => m.AliciId == kullaniciId && !m.OkunduMu);
 
+    public async Task<bool> OkunduIsaretleAsync(string benId, string karsiId)
+    {
+        var okunacak = await db.SohbetMesajlari
+            .Where(m => m.AliciId == benId && m.GondericiId == karsiId && !m.OkunduMu)
+            .ToListAsync();
+
+        if (okunacak.Count == 0)
+            return false;
+
+        foreach (var m in okunacak)
+            m.OkunduMu = true;
+
+        await db.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<string> AdSoyadAsync(string kullaniciId) =>
         (await db.Users.Where(u => u.Id == kullaniciId).Select(u => u.AdSoyad).FirstOrDefaultAsync()) ?? "?";
 }

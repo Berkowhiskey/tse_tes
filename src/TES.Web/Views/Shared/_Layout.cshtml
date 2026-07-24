@@ -193,6 +193,88 @@
     </div>
 
     <script src="~/lib/tabler/js/tabler.min.js" asp-append-version="true"></script>
+
+    @* Global gerçek zamanlı bildirim: her sayfada kurulur, kullanıcıya gelen mesajı toast + yumuşak sesle bildirir. *@
+    @if (aktifKullanici is not null)
+    {
+        <div id="tesToastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1080"></div>
+        <script src="~/lib/signalr/signalr.min.js"></script>
+        <script>
+            (function () {
+                window.tesKullaniciId = @Html.Raw(Json.Serialize(aktifKullanici.Id));
+                window.tesAktifKonusma = null; // konuşma sayfası kendi karşı tarafını buraya yazar
+
+                // Yumuşak "ding" (harici ses dosyası yok; WebAudio ile üretilir — CDN kuralı korunur).
+                window.tesBildirimSesi = function () {
+                    try {
+                        var ctx = window.tesAudioCtx || (window.tesAudioCtx = new (window.AudioContext || window.webkitAudioContext)());
+                        if (ctx.state === "suspended") { ctx.resume(); }
+                        var o = ctx.createOscillator(), g = ctx.createGain();
+                        o.type = "sine";
+                        o.frequency.setValueAtTime(880, ctx.currentTime);
+                        o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.18);
+                        g.gain.setValueAtTime(0.0001, ctx.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.10, ctx.currentTime + 0.02);
+                        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+                        o.connect(g); g.connect(ctx.destination);
+                        o.start(); o.stop(ctx.currentTime + 0.45);
+                    } catch (e) { /* ses engelliyse sessizce geç */ }
+                };
+
+                function tesToast(baslik, mesaj, gondericiId) {
+                    var cont = document.getElementById("tesToastContainer");
+                    if (!cont) return;
+                    var el = document.createElement("div");
+                    el.className = "toast show";
+                    el.setAttribute("role", "alert");
+                    el.style.cursor = "pointer";
+
+                    var header = document.createElement("div");
+                    header.className = "toast-header";
+                    var strong = document.createElement("strong");
+                    strong.className = "me-auto";
+                    strong.textContent = "💬 " + baslik; // textContent → XSS güvenli
+                    var kapat = document.createElement("button");
+                    kapat.type = "button";
+                    kapat.className = "btn-close";
+                    kapat.addEventListener("click", function (e) { e.stopPropagation(); el.remove(); });
+                    header.appendChild(strong);
+                    header.appendChild(kapat);
+
+                    var body = document.createElement("div");
+                    body.className = "toast-body";
+                    body.textContent = mesaj; // textContent → XSS güvenli
+
+                    el.appendChild(header);
+                    el.appendChild(body);
+                    el.addEventListener("click", function () {
+                        window.location.href = "/Sohbet/Konusma?karsiId=" + encodeURIComponent(gondericiId);
+                    });
+                    cont.appendChild(el);
+                    setTimeout(function () { el.remove(); }, 6000);
+                }
+
+                var connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/chatHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                window.tesHub = connection;
+
+                connection.on("MesajAlindi", function (m) {
+                    // Kendi gönderdiğim mesaj için bildirim yok; açık olan konuşma da toast göstermez
+                    // (o sayfa mesajı zaten canlı gösteriyor).
+                    if (m.gondericiId === window.tesKullaniciId) return;
+                    if (window.tesAktifKonusma && window.tesAktifKonusma === m.gondericiId) return;
+                    tesToast(m.gondericiAdSoyad || "Yeni mesaj", m.icerik, m.gondericiId);
+                    window.tesBildirimSesi();
+                });
+
+                window.tesHubReady = connection.start().catch(function (err) { console.error(err && err.toString()); });
+            })();
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
