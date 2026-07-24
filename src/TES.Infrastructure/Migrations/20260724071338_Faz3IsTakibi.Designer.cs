@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TES.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TES.Infrastructure.Data;
 namespace TES.Infrastructure.Migrations
 {
     [DbContext(typeof(TesDbContext))]
-    partial class TesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260724071338_Faz3IsTakibi")]
+    partial class Faz3IsTakibi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

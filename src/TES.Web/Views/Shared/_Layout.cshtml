@@ -78,6 +78,24 @@
                                         <span class="nav-link-title">Stajyerler</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Odev" asp-action="Verdiklerim">
+                                        <span class="nav-link-title">Verdiğim Ödevler</span>
+                                    </a>
+                                </li>
+                            }
+                            @if (stajyerMi)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Proje" asp-action="Index">
+                                        <span class="nav-link-title">Projem</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Odev" asp-action="Index">
+                                        <span class="nav-link-title">Ödevlerim</span>
+                                    </a>
+                                </li>
                             }
                             @if (adminMi)
                             {

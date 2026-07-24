@@ -14,6 +14,8 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
     public DbSet<AmirProfil> AmirProfilleri => Set<AmirProfil>();
     public DbSet<StajyerProfil> StajyerProfilleri => Set<StajyerProfil>();
     public DbSet<YoklamaKaydi> YoklamaKayitlari => Set<YoklamaKaydi>();
+    public DbSet<Proje> Projeler => Set<Proje>();
+    public DbSet<Odev> Odevler => Set<Odev>();
     public DbSet<MisafirErisimTalebi> MisafirErisimTalepleri => Set<MisafirErisimTalebi>();
     public DbSet<GidenEposta> GidenEpostalar => Set<GidenEposta>();
     public DbSet<SimuleAgErisimi> SimuleAgErisimleri => Set<SimuleAgErisimi>();
@@ -95,6 +97,38 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
                 .WithMany(x => x.YoklamaKayitlari)
                 .HasForeignKey(x => x.StajyerProfilId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Proje>(e =>
+        {
+            e.Property(x => x.Ad).HasMaxLength(200);
+            e.Property(x => x.Aciklama).HasMaxLength(2000);
+            // Stajyer başına tek proje.
+            e.HasIndex(x => x.StajyerProfilId).IsUnique();
+
+            e.HasOne(x => x.StajyerProfil)
+                .WithOne(x => x.Proje)
+                .HasForeignKey<Proje>(x => x.StajyerProfilId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Odev>(e =>
+        {
+            e.Property(x => x.Baslik).HasMaxLength(200);
+            e.Property(x => x.Aciklama).HasMaxLength(2000);
+            e.HasIndex(x => x.StajyerProfilId);
+            e.HasIndex(x => x.AmirProfilId);
+
+            e.HasOne(x => x.StajyerProfil)
+                .WithMany(x => x.Odevler)
+                .HasForeignKey(x => x.StajyerProfilId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Amir tarafı Restrict: SQL Server'da AspNetUsers üzerinden çoklu cascade yolu engellenir.
+            e.HasOne(x => x.AmirProfil)
+                .WithMany()
+                .HasForeignKey(x => x.AmirProfilId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<MisafirErisimTalebi>(e =>

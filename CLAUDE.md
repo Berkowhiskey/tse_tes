@@ -265,6 +265,13 @@ Bir özellik; yetkilendirmesi sunucuda doğrulanmış, doğrulama/hata durumlar�
 
 - **Tamamlandı [24.07.2026 10:01]** — Yeni amirlere otomatik kurum e-postası: `KullaniciYonetimServisi.AmirOlusturAsync` artık kullanıcı adından `ad.soyad@tse.org.tr` üretip atıyor (`EpostaUret`: `deneme_amiri` → `deneme.amiri@tse.org.tr`); başarı mesajında e-posta gösteriliyor. `MockPersonelDizini` DbContext'e bağlandı — sabit @tse.org.tr listesine EK olarak sistemdeki amir e-postalarını da tanıyor (aksi halde yeni amir sponsor gösterilince talep en baştan reddediliyordu). Seed'e `AmirEpostalariniDoldurAsync` (idempotent) eklendi: e-postası eksik tüm amirler — mevcut "Deneme Amiri" dahil — otomatik dolduruldu. Testler: 6 yeni (`MockPersonelDiziniTests`: EpostaUret, sabit/tse-dışı/sistemdeki-amir/hayalet adres). Toplam **39/39 geçti**. Duman: Deneme Amiri (deneme.amiri@tse.org.tr) sponsor gösterilerek talep oluşturulabildi — önceki reddedilen senaryo artık çalışıyor.
 
-### Faz 3 — İş takibi · **Sırada**
+### Faz 3 — İş takibi · **Tamamlandı [24.07.2026 10:27]**
 
-- Kapsam: `Proje` ve `Odev` takibi (amir → stajyer atama, durum/ilerleme).
+- **Tamamlandı [24.07.2026 10:10]** — Domain: `Proje` (stajyer başına tek — StajyerProfilId benzersiz), `Odev` (AmirProfilId → StajyerProfilId), ortak `IsDurumu` enum (Baslamadi/DevamEdiyor/Tamamlandi) + `Ilerleme` (0-100). `TesDbContext` ilişkileri: Proje→StajyerProfil cascade (1-1), Odev→StajyerProfil cascade, Odev→AmirProfil Restrict (SQL Server çoklu cascade yolu engeli). Migration `Faz3IsTakibi`.
+- **Tamamlandı [24.07.2026 10:15]** — Servisler: `ProjeServisi` (kaydet/ilerleme/sil) ve `OdevServisi` (ata/durum/sil). Sahiplik `YetkiBaglami` (KullaniciId + rol bayrakları) ile SUNUCUDA: Admin her stajyeri; Amir yalnız kendi stajyeri; Stajyer yalnız kendi işini günceller. Ödev atamak için stajyerin amiri olmalı (AmirProfilId stajyerin amirinden gelir). %100 ilerleme → otomatik Tamamlandı.
+- **Tamamlandı [24.07.2026 10:20]** — Web: `ProjeController` (stajyer: Projem + ilerleme; amir: Yonet) ve `OdevController` (stajyer: Ödevlerim + durum; amir: Ata/Verdiklerim). Stajyer Detay sayfasına proje + ödev kartları ve "Proje Ata/Düzenle", "Ödev Ver", "Sil" işlemleri entegre. Progress bar'lı görünümler, rol-duyarlı navbar + dashboard. `YetkiBaglamiExtensions` ile ClaimsPrincipal → YetkiBaglami.
+- **Tamamlandı [24.07.2026 10:27]** — Testler: `IsTakibiServisiTests` (11 test: tek proje kuralı, başka amir reddi, sahibi stajyer güncelleme, yabancı stajyer reddi, ödev AmirProfilId doğru set, amirsiz stajyere atama reddi, admin her stajyere atar...). Toplam **48/48 geçti**. Seed'e örnek proje + ödev (ayse_yilmaz_1001) eklendi. Duman: migration uygulandı, Projeler/Odevler tabloları + seed verisi doğrulandı, iş takibi rotaları anonim erişimde login'e 302. `dotnet build` + `dotnet test` temiz.
+
+### Faz 4 — Sosyal · **Sırada**
+
+- Kapsam: `Gonderi` (moderasyon: stajyer gönderisi admin onayına tabi) + `Yorum` + `Begeni`.

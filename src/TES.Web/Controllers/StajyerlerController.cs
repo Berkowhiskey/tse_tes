@@ -15,6 +15,8 @@ namespace TES.Web.Controllers;
 public class StajyerlerController(
     IStajyerSorguServisi stajyerSorgu,
     IYoklamaServisi yoklamaServisi,
+    IProjeServisi projeServisi,
+    IOdevServisi odevServisi,
     IDenetimServisi denetim) : Controller
 {
     [HttpGet]
@@ -53,6 +55,10 @@ public class StajyerlerController(
                 CikisZamani = y.CikisZamani
             })
             .ToList();
+
+        // Faz 3: proje + ödevler (amir/admin bu stajyeri yönetebilir).
+        ViewBag.Proje = await projeServisi.StajyerinProjesiAsync(satir.Profil.Id);
+        ViewBag.Odevler = await odevServisi.StajyerinOdevleriAsync(satir.Profil.Id);
 
         return View(satir);
     }

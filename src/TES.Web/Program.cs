@@ -59,6 +59,8 @@ builder.Services.AddScoped<IKullaniciYonetimServisi, KullaniciYonetimServisi>();
 builder.Services.AddScoped<IStajyerSorguServisi, StajyerSorguServisi>();
 builder.Services.AddScoped<IYoklamaServisi, YoklamaServisi>();
 builder.Services.AddScoped<IProfilServisi, ProfilServisi>();
+builder.Services.AddScoped<IProjeServisi, ProjeServisi>();
+builder.Services.AddScoped<IOdevServisi, OdevServisi>();
 
 // TSE-Misafir (Faz 2): ayarlar + simülasyon bileşenleri + karar servisi.
 // Gerçek sistemler arayüz arkasında simüle edilir (CLAUDE.md Bölüm 3 ve 9).

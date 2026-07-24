@@ -1,0 +1,41 @@
+@model OdevAtaViewModel
+@{
+    ViewData["Title"] = "Ödev Ver";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">Ödev Ver — @Model.StajyerAdSoyad</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <form asp-action="Ata" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="StajyerProfilId" />
+            <input type="hidden" asp-for="StajyerAdSoyad" />
+
+            <div class="mb-3">
+                <label asp-for="Baslik" class="form-label"></label>
+                <input asp-for="Baslik" class="form-control" autofocus />
+                <span asp-validation-for="Baslik" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Aciklama" class="form-label"></label>
+                <textarea asp-for="Aciklama" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Aciklama" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="TeslimTarihi" class="form-label"></label>
+                <input asp-for="TeslimTarihi" class="form-control" type="date" />
+                <span asp-validation-for="TeslimTarihi" class="text-danger small"></span>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Ödevi Ata</button>
+                <a asp-controller="Stajyerler" asp-action="Detay" asp-route-id="@Model.StajyerProfilId" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

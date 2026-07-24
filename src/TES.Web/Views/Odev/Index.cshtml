@@ -1,0 +1,73 @@
+@using TES.Domain.Entities
+@using TES.Web.ViewModels
+@model IReadOnlyList<Odev>
+@{
+    ViewData["Title"] = "Ödevlerim";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">İş Takibi</div>
+    <h2 class="page-title">Ödevlerim</h2>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="empty">
+        <p class="empty-title">Henüz ödeviniz yok</p>
+        <p class="empty-subtitle text-secondary">Amiriniz size ödev atadığında burada görünecek.</p>
+    </div>
+}
+else
+{
+    <div class="row row-cards">
+        @foreach (var odev in Model)
+        {
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="card-title mb-0">@odev.Baslik</h3>
+                            <partial name="_DurumRozeti" model="odev.Durum" />
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(odev.Aciklama))
+                        {
+                            <p class="text-secondary">@odev.Aciklama</p>
+                        }
+
+                        @if (odev.TeslimTarihi is not null)
+                        {
+                            <div class="small text-secondary mb-2">Teslim: @odev.TeslimTarihi.Value.ToString("dd.MM.yyyy")</div>
+                        }
+
+                        <div class="progress mb-3">
+                            <div class="progress-bar" style="width: @odev.Ilerleme%" role="progressbar"
+                                 aria-valuenow="@odev.Ilerleme" aria-valuemin="0" aria-valuemax="100">%@odev.Ilerleme</div>
+                        </div>
+
+                        <form asp-controller="Odev" asp-action="DurumGuncelle" method="post" class="row g-2 align-items-end">
+                            <input type="hidden" name="odevId" value="@odev.Id" />
+                            <input type="hidden" name="donusUrl" value="@Url.Action("Index")" />
+                            <div class="col-auto">
+                                <label class="form-label">İlerleme (%)</label>
+                                <input type="number" name="ilerleme" value="@odev.Ilerleme" min="0" max="100" class="form-control" style="width: 100px" />
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">Durum</label>
+                                <select name="durum" class="form-select">
+                                    @foreach (IsDurumu d in Enum.GetValues<IsDurumu>())
+                                    {
+                                        <option value="@d" selected="@(d == odev.Durum)">@IsDurumuMetin.Etiket(d)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">Güncelle</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

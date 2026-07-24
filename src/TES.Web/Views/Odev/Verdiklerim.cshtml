@@ -1,0 +1,53 @@
+@using TES.Web.ViewModels
+@model IReadOnlyList<OdevSatiri>
+@{
+    ViewData["Title"] = "Verdiğim Ödevler";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">İş Takibi</div>
+    <h2 class="page-title">Verdiğim Ödevler</h2>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table">
+            <thead>
+                <tr>
+                    <th>Stajyer</th>
+                    <th>Ödev</th>
+                    <th>Teslim</th>
+                    <th>İlerleme</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var satir in Model)
+                {
+                    <tr>
+                        <td>@(satir.StajyerAdSoyad ?? "—")</td>
+                        <td>
+                            @satir.Odev.Baslik
+                            @if (!string.IsNullOrWhiteSpace(satir.Odev.Aciklama))
+                            {
+                                <div class="text-secondary small">@satir.Odev.Aciklama</div>
+                            }
+                        </td>
+                        <td>@(satir.Odev.TeslimTarihi?.ToString("dd.MM.yyyy") ?? "—")</td>
+                        <td style="min-width: 120px">
+                            <div class="progress" style="height: 6px">
+                                <div class="progress-bar" style="width: @satir.Odev.Ilerleme%"></div>
+                            </div>
+                            <span class="small text-secondary">%@satir.Odev.Ilerleme</span>
+                        </td>
+                        <td><partial name="_DurumRozeti" model="satir.Odev.Durum" /></td>
+                    </tr>
+                }
+                @if (Model.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center text-secondary">Henüz ödev atamadınız.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

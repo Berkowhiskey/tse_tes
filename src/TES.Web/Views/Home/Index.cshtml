@@ -130,12 +130,34 @@
         </div>
     }
 
-    <div class="col-sm-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <h3 class="card-title">📋 Proje &amp; Ödev</h3>
-                <p class="text-secondary">İş takibi (Faz 3'te gelecek).</p>
-            </div>
+    @if (stajyerMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Proje" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">📋 Projem</h3>
+                    <p class="text-secondary">Projenizi görüntüleyin ve ilerlemenizi güncelleyin.</p>
+                </div>
+            </a>
         </div>
-    </div>
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Odev" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">✅ Ödevlerim</h3>
+                    <p class="text-secondary">Size atanan ödevleri görün ve durum bildirin.</p>
+                </div>
+            </a>
+        </div>
+    }
+    else if (adminMi || amirMi)
+    {
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Odev" asp-action="Verdiklerim" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">📋 Proje &amp; Ödev</h3>
+                    <p class="text-secondary">Stajyer detayından proje atayın, ödev verin ve takip edin.</p>
+                </div>
+            </a>
+        </div>
+    }
 </div>

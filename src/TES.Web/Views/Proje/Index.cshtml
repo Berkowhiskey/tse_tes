@@ -1,0 +1,69 @@
+@using TES.Domain.Entities
+@using TES.Web.ViewModels
+@model ProjemViewModel
+@{
+    ViewData["Title"] = "Projem";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">İş Takibi</div>
+    <h2 class="page-title">Projem</h2>
+</div>
+
+@if (Model.Proje is null)
+{
+    <div class="empty">
+        <p class="empty-title">Henüz bir projeniz yok</p>
+        <p class="empty-subtitle text-secondary">
+            Amiriniz size bir proje atadığında burada görünecek ve ilerlemenizi buradan güncelleyebileceksiniz.
+        </p>
+    </div>
+}
+else
+{
+    var proje = Model.Proje;
+    <div class="card col-lg-8">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h3 class="card-title mb-0">@proje.Ad</h3>
+                <partial name="_DurumRozeti" model="proje.Durum" />
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(proje.Aciklama))
+            {
+                <p class="text-secondary">@proje.Aciklama</p>
+            }
+
+            <div class="mb-1 d-flex justify-content-between">
+                <span class="small text-secondary">İlerleme</span>
+                <span class="small">%@proje.Ilerleme</span>
+            </div>
+            <div class="progress mb-4">
+                <div class="progress-bar" style="width: @proje.Ilerleme%" role="progressbar"
+                     aria-valuenow="@proje.Ilerleme" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <form asp-controller="Proje" asp-action="IlerlemeGuncelle" method="post" class="row g-2 align-items-end">
+                <input type="hidden" name="projeId" value="@proje.Id" />
+                <input type="hidden" name="donusUrl" value="@Url.Action("Index")" />
+
+                <div class="col-auto">
+                    <label class="form-label">İlerleme (%)</label>
+                    <input type="number" name="ilerleme" value="@proje.Ilerleme" min="0" max="100" class="form-control" style="width: 110px" />
+                </div>
+                <div class="col-auto">
+                    <label class="form-label">Durum</label>
+                    <select name="durum" class="form-select">
+                        @foreach (IsDurumu d in Enum.GetValues<IsDurumu>())
+                        {
+                            <option value="@d" selected="@(d == proje.Durum)">@IsDurumuMetin.Etiket(d)</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Güncelle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}

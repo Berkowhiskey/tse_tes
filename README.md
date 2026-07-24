@@ -156,7 +156,7 @@ dotnet ef migrations add <Ad> --project src/TES.Infrastructure --startup-project
 - [x] **Faz 0 — İskelet:** proje kurulumu, Identity, Tabler layout, DbContext + ilk migration, seed
 - [x] **Faz 1 — Kimlik & organizasyon:** roller/profiller, Departman hiyerarşisi, Amir–Stajyer eşleştirme, Yoklama (RFID simülatörü)
 - [x] **Faz 2 — Misafir ağı (kalp):** TSE-Misafir sponsor akışı, SMTP simülasyonu, `SimulatedNetworkAccessProvider`
-- [ ] **Faz 3 — İş takibi:** Proje & Ödev takibi
+- [x] **Faz 3 — İş takibi:** Proje & Ödev takibi (amir atar, stajyer ilerleme raporlar)
 - [ ] **Faz 4 — Sosyal:** Gönderi + moderasyon + Yorum/Beğeni
 - [ ] **Faz 5 — İletişim:** Chatbox + bildirimler (SignalR)
 - [ ] **Sonrası:** mobil, basit yerel AI, KVKK sertleştirme

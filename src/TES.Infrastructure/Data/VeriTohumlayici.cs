@@ -172,5 +172,44 @@ public static class VeriTohumlayici
 
         if (yeniOlusan)
             await denetim.KaydetAsync("Sistem", "Faz1SeedTamamlandi", "Departmanlar ve örnek profiller oluşturuldu.");
+
+        // Faz 3: örnek proje + ödev (ayse_yilmaz_1001'e), demo kolaylığı için idempotent.
+        await Faz3SeedAsync(db, amirProfil);
+    }
+
+    /// <summary>Örnek proje ve ödev verisi (stajyer giriş yapınca boş ekran görmesin).</summary>
+    private static async Task Faz3SeedAsync(TesDbContext db, AmirProfil? amirProfil)
+    {
+        var stajyer = await db.StajyerProfilleri.FirstOrDefaultAsync(s => s.KartNo == "1001");
+        if (stajyer is null || amirProfil is null)
+            return;
+
+        if (!await db.Projeler.AnyAsync(p => p.StajyerProfilId == stajyer.Id))
+        {
+            db.Projeler.Add(new Proje
+            {
+                StajyerProfilId = stajyer.Id,
+                Ad = "TES Web Arayüz Geliştirme",
+                Aciklama = "Tabler bileşenleriyle stajyer paneli ekranlarının geliştirilmesi.",
+                Durum = IsDurumu.DevamEdiyor,
+                Ilerleme = 35
+            });
+        }
+
+        if (!await db.Odevler.AnyAsync(o => o.StajyerProfilId == stajyer.Id))
+        {
+            db.Odevler.Add(new Odev
+            {
+                StajyerProfilId = stajyer.Id,
+                AmirProfilId = amirProfil.Id,
+                Baslik = "EF Core migration çalışması",
+                Aciklama = "Code-First migration akışını inceleyip örnek bir migration üret.",
+                Durum = IsDurumu.Baslamadi,
+                Ilerleme = 0,
+                TeslimTarihi = new DateOnly(2026, 8, 5)
+            });
+        }
+
+        await db.SaveChangesAsync();
     }
 }

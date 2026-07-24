@@ -1,8 +1,11 @@
+@using TES.Domain.Entities
 @using TES.Infrastructure.Services
 @model StajyerSatiri
 @{
     ViewData["Title"] = Model.AdSoyad;
     var yoklamalar = (IReadOnlyList<YoklamaSatirViewModel>)ViewBag.Yoklamalar;
+    var proje = (Proje?)ViewBag.Proje;
+    var odevler = (IReadOnlyList<Odev>)ViewBag.Odevler;
 }
 
 <div class="page-header d-print-none mb-3">
@@ -58,6 +61,87 @@
                         @if (yoklamalar.Count == 0)
                         {
                             <tr><td colspan="3" class="text-center text-secondary">Henüz yoklama kaydı yok.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row row-cards mt-1">
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Proje</h3>
+                <a asp-controller="Proje" asp-action="Yonet" asp-route-stajyerId="@Model.Profil.Id" class="btn btn-sm">
+                    @(proje is null ? "Proje Ata" : "Düzenle")
+                </a>
+            </div>
+            <div class="card-body">
+                @if (proje is null)
+                {
+                    <p class="text-secondary mb-0">Bu stajyere henüz proje atanmadı.</p>
+                }
+                else
+                {
+                    <div class="d-flex justify-content-between align-items-start mb-1">
+                        <strong>@proje.Ad</strong>
+                        <partial name="_DurumRozeti" model="proje.Durum" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(proje.Aciklama))
+                    {
+                        <p class="text-secondary small">@proje.Aciklama</p>
+                    }
+                    <div class="progress mb-2" style="height: 6px">
+                        <div class="progress-bar" style="width: @proje.Ilerleme%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="small text-secondary">%@proje.Ilerleme</span>
+                        <form asp-controller="Proje" asp-action="Sil" method="post"
+                              onsubmit="return confirm('Proje silinsin mi?');">
+                            <input type="hidden" name="projeId" value="@proje.Id" />
+                            <input type="hidden" name="stajyerId" value="@Model.Profil.Id" />
+                            <button type="submit" class="btn btn-sm btn-ghost-danger">Sil</button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Ödevler</h3>
+                <a asp-controller="Odev" asp-action="Ata" asp-route-stajyerId="@Model.Profil.Id" class="btn btn-sm btn-primary">Ödev Ver</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table">
+                    <thead>
+                        <tr><th>Ödev</th><th>Teslim</th><th>İlerleme</th><th>Durum</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var odev in odevler)
+                        {
+                            <tr>
+                                <td>@odev.Baslik</td>
+                                <td>@(odev.TeslimTarihi?.ToString("dd.MM.yyyy") ?? "—")</td>
+                                <td>%@odev.Ilerleme</td>
+                                <td><partial name="_DurumRozeti" model="odev.Durum" /></td>
+                                <td class="text-end">
+                                    <form asp-controller="Odev" asp-action="Sil" method="post"
+                                          onsubmit="return confirm('Ödev silinsin mi?');">
+                                        <input type="hidden" name="odevId" value="@odev.Id" />
+                                        <input type="hidden" name="stajyerId" value="@Model.Profil.Id" />
+                                        <button type="submit" class="btn btn-sm btn-ghost-danger">Sil</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                        @if (odevler.Count == 0)
+                        {
+                            <tr><td colspan="5" class="text-center text-secondary">Henüz ödev atanmadı.</td></tr>
                         }
                     </tbody>
                 </table>

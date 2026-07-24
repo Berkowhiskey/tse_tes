@@ -30,4 +30,9 @@ public class StajyerProfil
     public Departman? Departman { get; set; }
 
     public ICollection<YoklamaKaydi> YoklamaKayitlari { get; set; } = [];
+
+    /// <summary>Stajyer başına tek proje (Bölüm 6); ileride çoka-çok'a genişleyebilir.</summary>
+    public Proje? Proje { get; set; }
+
+    public ICollection<Odev> Odevler { get; set; } = [];
 }

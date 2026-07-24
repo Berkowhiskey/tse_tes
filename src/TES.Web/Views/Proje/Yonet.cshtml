@@ -1,0 +1,36 @@
+@model ProjeYonetViewModel
+@{
+    ViewData["Title"] = Model.Duzenleme ? "Proje Düzenle" : "Proje Ata";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">@(Model.Duzenleme ? "Proje Düzenle" : "Proje Ata") — @Model.StajyerAdSoyad</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <form asp-action="Yonet" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="StajyerProfilId" />
+            <input type="hidden" asp-for="StajyerAdSoyad" />
+            <input type="hidden" asp-for="Duzenleme" />
+
+            <div class="mb-3">
+                <label asp-for="Ad" class="form-label"></label>
+                <input asp-for="Ad" class="form-control" autofocus />
+                <span asp-validation-for="Ad" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Aciklama" class="form-label"></label>
+                <textarea asp-for="Aciklama" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Aciklama" class="text-danger small"></span>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a asp-controller="Stajyerler" asp-action="Detay" asp-route-id="@Model.StajyerProfilId" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>
