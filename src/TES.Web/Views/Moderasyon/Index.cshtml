@@ -1,0 +1,47 @@
+@using TES.Infrastructure.Services
+@model IReadOnlyList<GonderiOzeti>
+@{
+    ViewData["Title"] = "Moderasyon";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">Yönetim</div>
+    <h2 class="page-title">Gönderi Moderasyonu</h2>
+</div>
+
+<div class="alert alert-info">
+    Stajyer gönderileri yayınlanmadan önce onayınızı bekler. Onaylayın ya da gerekçeli reddedin.
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        @foreach (var ozet in Model)
+        {
+            var g = ozet.Gonderi;
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <strong>@ozet.YazarAdSoyad</strong>
+                        <span class="text-secondary small">@g.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <p style="white-space: pre-wrap">@g.Icerik</p>
+                    <div class="d-flex gap-2 border-top pt-2">
+                        <form asp-action="Onayla" method="post">
+                            <input type="hidden" name="gonderiId" value="@g.Id" />
+                            <button type="submit" class="btn btn-sm btn-success">✔ Onayla</button>
+                        </form>
+                        <a asp-action="Reddet" asp-route-gonderiId="@g.Id" class="btn btn-sm btn-outline-danger">✘ Reddet</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Count == 0)
+        {
+            <div class="empty">
+                <p class="empty-title">Bekleyen gönderi yok</p>
+                <p class="empty-subtitle text-secondary">Tüm gönderiler değerlendirildi.</p>
+            </div>
+        }
+    </div>
+</div>

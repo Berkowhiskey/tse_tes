@@ -1,0 +1,132 @@
+@using TES.Domain.Entities
+@using TES.Web.ViewModels
+@model FeedViewModel
+@{
+    ViewData["Title"] = "Sosyal Akış";
+}
+
+<div class="page-header d-print-none mb-3">
+    <div class="page-pretitle">Kurum İçi Platform</div>
+    <h2 class="page-title">Sosyal Akış</h2>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <form asp-action="Olustur" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-2">
+                        <textarea asp-for="YeniIcerik" class="form-control" rows="3"
+                                  placeholder="Ne paylaşmak istersiniz?"></textarea>
+                        <span asp-validation-for="YeniIcerik" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        @if (Model.OnayaTabi)
+                        {
+                            <span class="text-secondary small">ℹ️ Gönderiniz admin onayından sonra yayınlanır.</span>
+                        }
+                        else
+                        {
+                            <span></span>
+                        }
+                        <button type="submit" class="btn btn-primary">Paylaş</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @foreach (var ozet in Model.Gonderiler)
+        {
+            var g = ozet.Gonderi;
+            var (etiket, renk) = ModerasyonMetin.Rozet(g.ModerasyonDurumu);
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong>@ozet.YazarAdSoyad</strong>
+                            <div class="text-secondary small">@g.OlusturmaZamani.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                        @if (g.ModerasyonDurumu != ModerasyonDurumu.Onaylandi)
+                        {
+                            <span class="badge @renk">@etiket</span>
+                        }
+                    </div>
+
+                    <p class="mb-2" style="white-space: pre-wrap">@g.Icerik</p>
+
+                    @if (g.ModerasyonDurumu == ModerasyonDurumu.Reddedildi && !string.IsNullOrWhiteSpace(g.RedMesaji))
+                    {
+                        <div class="alert alert-danger py-2">Red gerekçesi: @g.RedMesaji</div>
+                    }
+
+                    @* Etkileşim yalnızca yayındaki gönderilerde *@
+                    @if (g.ModerasyonDurumu == ModerasyonDurumu.Onaylandi)
+                    {
+                        <div class="d-flex gap-2 align-items-center border-top pt-2">
+                            <form asp-action="Begen" method="post">
+                                <input type="hidden" name="gonderiId" value="@g.Id" />
+                                <button type="submit" class="btn btn-sm @(ozet.KullaniciBegendi ? "btn-primary" : "btn-outline-primary")">
+                                    👍 Beğen (@ozet.BegeniSayisi)
+                                </button>
+                            </form>
+                            <span class="text-secondary small">💬 @ozet.Yorumlar.Count yorum</span>
+                            @if (ozet.Silebilir)
+                            {
+                                <form asp-action="Sil" method="post" class="ms-auto"
+                                      onsubmit="return confirm('Gönderi kaldırılsın mı?');">
+                                    <input type="hidden" name="gonderiId" value="@g.Id" />
+                                    <button type="submit" class="btn btn-sm btn-ghost-danger">Kaldır</button>
+                                </form>
+                            }
+                        </div>
+
+                        <div class="mt-2">
+                            @foreach (var yorum in ozet.Yorumlar)
+                            {
+                                <div class="d-flex justify-content-between align-items-start py-1 border-bottom">
+                                    <div>
+                                        <strong class="small">@yorum.YazarAdSoyad</strong>
+                                        <span class="small text-secondary ms-1">@yorum.Yorum.OlusturmaZamani.ToLocalTime().ToString("dd.MM HH:mm")</span>
+                                        <div style="white-space: pre-wrap">@yorum.Yorum.Icerik</div>
+                                    </div>
+                                    @if (yorum.Silebilir)
+                                    {
+                                        <form asp-action="YorumSil" method="post">
+                                            <input type="hidden" name="yorumId" value="@yorum.Yorum.Id" />
+                                            <button type="submit" class="btn btn-sm btn-ghost-danger py-0">✕</button>
+                                        </form>
+                                    }
+                                </div>
+                            }
+
+                            <form asp-action="YorumEkle" method="post" class="d-flex gap-2 mt-2">
+                                <input type="hidden" name="gonderiId" value="@g.Id" />
+                                <input type="text" name="icerik" class="form-control form-control-sm" placeholder="Yorum yazın..." maxlength="2000" required />
+                                <button type="submit" class="btn btn-sm btn-primary">Gönder</button>
+                            </form>
+                        </div>
+                    }
+                    else if (ozet.Silebilir)
+                    {
+                        <div class="border-top pt-2">
+                            <form asp-action="Sil" method="post" onsubmit="return confirm('Gönderi kaldırılsın mı?');">
+                                <input type="hidden" name="gonderiId" value="@g.Id" />
+                                <button type="submit" class="btn btn-sm btn-ghost-danger">Kaldır</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.Gonderiler.Count == 0)
+        {
+            <div class="empty">
+                <p class="empty-title">Henüz gönderi yok</p>
+                <p class="empty-subtitle text-secondary">İlk paylaşımı sen yap!</p>
+            </div>
+        }
+    </div>
+</div>

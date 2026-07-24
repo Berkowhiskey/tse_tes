@@ -16,6 +16,9 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
     public DbSet<YoklamaKaydi> YoklamaKayitlari => Set<YoklamaKaydi>();
     public DbSet<Proje> Projeler => Set<Proje>();
     public DbSet<Odev> Odevler => Set<Odev>();
+    public DbSet<Gonderi> Gonderiler => Set<Gonderi>();
+    public DbSet<Yorum> Yorumlar => Set<Yorum>();
+    public DbSet<Begeni> Begeniler => Set<Begeni>();
     public DbSet<MisafirErisimTalebi> MisafirErisimTalepleri => Set<MisafirErisimTalebi>();
     public DbSet<GidenEposta> GidenEpostalar => Set<GidenEposta>();
     public DbSet<SimuleAgErisimi> SimuleAgErisimleri => Set<SimuleAgErisimi>();
@@ -129,6 +132,40 @@ public class TesDbContext(DbContextOptions<TesDbContext> options)
                 .WithMany()
                 .HasForeignKey(x => x.AmirProfilId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Gonderi>(e =>
+        {
+            e.Property(x => x.YazarId).HasMaxLength(450);
+            e.Property(x => x.Icerik).HasMaxLength(4000);
+            e.Property(x => x.RedMesaji).HasMaxLength(1000);
+            e.Property(x => x.ModeratorAdi).HasMaxLength(256);
+            e.HasIndex(x => x.YazarId);
+            e.HasIndex(x => x.ModerasyonDurumu);
+        });
+
+        builder.Entity<Yorum>(e =>
+        {
+            e.Property(x => x.YazarId).HasMaxLength(450);
+            e.Property(x => x.Icerik).HasMaxLength(2000);
+            e.HasIndex(x => x.GonderiId);
+
+            e.HasOne(x => x.Gonderi)
+                .WithMany(x => x.Yorumlar)
+                .HasForeignKey(x => x.GonderiId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Begeni>(e =>
+        {
+            e.Property(x => x.KullaniciId).HasMaxLength(450);
+            // Bir kullanıcı bir gönderiyi bir kez beğenir.
+            e.HasIndex(x => new { x.GonderiId, x.KullaniciId }).IsUnique();
+
+            e.HasOne(x => x.Gonderi)
+                .WithMany(x => x.Begeniler)
+                .HasForeignKey(x => x.GonderiId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<MisafirErisimTalebi>(e =>

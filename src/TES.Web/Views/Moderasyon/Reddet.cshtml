@@ -1,0 +1,36 @@
+@model ReddetViewModel
+@{
+    ViewData["Title"] = "Gönderiyi Reddet";
+}
+
+<div class="page-header d-print-none mb-3">
+    <h2 class="page-title">Gönderiyi Reddet</h2>
+</div>
+
+<div class="card col-lg-6">
+    <div class="card-body">
+        <div class="mb-3">
+            <div class="text-secondary small">Yazar: @Model.YazarAdSoyad</div>
+            <div class="border rounded p-2 mt-1" style="white-space: pre-wrap">@Model.Icerik</div>
+        </div>
+
+        <form asp-action="Reddet" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="GonderiId" />
+            <input type="hidden" asp-for="YazarAdSoyad" />
+            <input type="hidden" asp-for="Icerik" />
+
+            <div class="mb-3">
+                <label asp-for="RedMesaji" class="form-label"></label>
+                <textarea asp-for="RedMesaji" class="form-control" rows="3"
+                          placeholder="Gönderinin neden reddedildiğini açıklayın (yazara gösterilir)"></textarea>
+                <span asp-validation-for="RedMesaji" class="text-danger small"></span>
+            </div>
+
+            <div class="form-footer d-flex gap-2">
+                <button type="submit" class="btn btn-danger">Reddet</button>
+                <a asp-action="Index" class="btn">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</div>

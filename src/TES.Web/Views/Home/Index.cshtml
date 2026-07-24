@@ -18,6 +18,15 @@
 
 <div class="row row-cards">
     <div class="col-sm-6 col-lg-4">
+        <a asp-controller="Gonderi" asp-action="Index" class="card card-link">
+            <div class="card-body">
+                <h3 class="card-title">💬 Sosyal Akış</h3>
+                <p class="text-secondary">Gönderi paylaşın, yorum yapın, beğenin.</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-sm-6 col-lg-4">
         <a asp-controller="Yoklama" asp-action="Index" class="card card-link">
             <div class="card-body">
                 <h3 class="card-title">🕐 Yoklama</h3>
@@ -71,6 +80,14 @@
                 <div class="card-body">
                     <h3 class="card-title">🧑‍💼 Kullanıcı Yönetimi</h3>
                     <p class="text-secondary">Amir/stajyer hesapları ve eşleştirme.</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-sm-6 col-lg-4">
+            <a asp-controller="Moderasyon" asp-action="Index" class="card card-link">
+                <div class="card-body">
+                    <h3 class="card-title">🛡️ Moderasyon</h3>
+                    <p class="text-secondary">Bekleyen stajyer gönderilerini onaylayın/reddedin.</p>
                 </div>
             </a>
         </div>

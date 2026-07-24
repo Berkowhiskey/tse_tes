@@ -272,6 +272,13 @@ Bir özellik; yetkilendirmesi sunucuda doğrulanmış, doğrulama/hata durumlar�
 - **Tamamlandı [24.07.2026 10:20]** — Web: `ProjeController` (stajyer: Projem + ilerleme; amir: Yonet) ve `OdevController` (stajyer: Ödevlerim + durum; amir: Ata/Verdiklerim). Stajyer Detay sayfasına proje + ödev kartları ve "Proje Ata/Düzenle", "Ödev Ver", "Sil" işlemleri entegre. Progress bar'lı görünümler, rol-duyarlı navbar + dashboard. `YetkiBaglamiExtensions` ile ClaimsPrincipal → YetkiBaglami.
 - **Tamamlandı [24.07.2026 10:27]** — Testler: `IsTakibiServisiTests` (11 test: tek proje kuralı, başka amir reddi, sahibi stajyer güncelleme, yabancı stajyer reddi, ödev AmirProfilId doğru set, amirsiz stajyere atama reddi, admin her stajyere atar...). Toplam **48/48 geçti**. Seed'e örnek proje + ödev (ayse_yilmaz_1001) eklendi. Duman: migration uygulandı, Projeler/Odevler tabloları + seed verisi doğrulandı, iş takibi rotaları anonim erişimde login'e 302. `dotnet build` + `dotnet test` temiz.
 
-### Faz 4 — Sosyal · **Sırada**
+### Faz 4 — Sosyal · **Tamamlandı [24.07.2026 11:12]**
 
-- Kapsam: `Gonderi` (moderasyon: stajyer gönderisi admin onayına tabi) + `Yorum` + `Begeni`.
+- **Tamamlandı [24.07.2026 10:55]** — Domain: `Gonderi` (YazarId, Icerik, `ModerasyonDurumu`: Beklemede/Onaylandi/Reddedildi, RedMesaji), `Yorum` (GonderiId→YazarId), `Begeni` ((GonderiId, KullaniciId) benzersiz). `TesDbContext`: Yorum/Begeni→Gonderi cascade, YazarId/KullaniciId FK'siz (Identity'ye restrict yükü yok). Migration `Faz4Sosyal`.
+- **Tamamlandı [24.07.2026 11:00]** — `SosyalServis`: moderasyon kuralı SUNUCUDA — stajyer gönderisi `Beklemede`, amir/admin `Onaylandi`. Feed = onaylanmış tüm gönderiler + isteğin sahibinin kendi (bekleyen/reddedilen) gönderileri. Onayla/gerekçeli reddet (Admin), içerik kaldırma (sahip veya Admin — Admin herkesinkini, denetim kaydıyla), yorum + beğeni toggle yalnızca yayındaki gönderilere. Yazar adları tek sorguda çözülür (N+1 yok).
+- **Tamamlandı [24.07.2026 11:05]** — Web: `GonderiController` (feed/oluştur/yorum ekle-sil/beğen/gönderi sil) + `ModerasyonController` (Admin: bekleyenler/onayla/gerekçeli reddet). Feed kartları (rozet, beğeni, yorum, kaldır), red gerekçesi sahibine gösteriliyor. Kullanıcı içeriği Razor ile encode (XSS). Navbar "Sosyal Akış" (herkes) + "Moderasyon" (Admin); dashboard kartları.
+- **Tamamlandı [24.07.2026 11:12]** — Testler: `SosyalServisTests` (12 test: stajyer→Beklemede, amir/admin→Onaylandi, bekleyen başkasına görünmez/sahibine görünür, onay sonrası herkese, gerekçeli red, sahiplik silme, admin her içeriği siler, yorum yalnız onaylıya, beğeni toggle/tek beğeni, bekleyene beğeni engeli). Toplam **60/60 geçti**. Duman: migration uygulandı, Gonderiler/Yorumlar/Begeniler tabloları + rota yetki yönlendirmeleri doğrulandı. `dotnet build` + `dotnet test` temiz.
+
+### Faz 5 — İletişim · **Sırada**
+
+- Kapsam: Chatbox (amir ↔ stajyer) + bildirimler (SignalR).
