@@ -57,6 +57,7 @@ builder.Services.AddAuthorizationBuilder()
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();
 builder.Services.AddScoped<IDepartmanServisi, DepartmanServisi>();
 builder.Services.AddScoped<IKullaniciYonetimServisi, KullaniciYonetimServisi>();
+builder.Services.AddScoped<ITopluStajyerServisi, TopluStajyerServisi>();
 builder.Services.AddScoped<IStajyerSorguServisi, StajyerSorguServisi>();
 builder.Services.AddScoped<IYoklamaServisi, YoklamaServisi>();
 builder.Services.AddScoped<IProfilServisi, ProfilServisi>();

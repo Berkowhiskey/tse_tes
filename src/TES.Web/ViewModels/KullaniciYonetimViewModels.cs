@@ -90,6 +90,9 @@ public class StajyerOlusturViewModel
     public int? AmirProfilId { get; set; }
 
     public IEnumerable<SelectListItem> AmirSecenekleri { get; set; } = [];
+
+    /// <summary>Toplu içe aktarma sonucu (yalnız POST sonrası dolar; GET'te null).</summary>
+    public TopluIceAktarmaSonucu? TopluSonuc { get; set; }
 }
 
 public class EslestirViewModel

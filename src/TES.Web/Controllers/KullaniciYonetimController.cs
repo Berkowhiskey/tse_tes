@@ -14,8 +14,12 @@ namespace TES.Web.Controllers;
 public class KullaniciYonetimController(
     IKullaniciYonetimServisi kullaniciYonetim,
     IStajyerSorguServisi stajyerSorgu,
-    IDepartmanServisi departmanServisi) : Controller
+    IDepartmanServisi departmanServisi,
+    ITopluStajyerServisi topluStajyer) : Controller
 {
+    private const long MaksDosyaBoyutu = 5 * 1024 * 1024; // 5 MB
+    private const string XlsxTuru = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
     [HttpGet]
     public async Task<IActionResult> Index()
     {
@@ -92,6 +96,49 @@ public class KullaniciYonetimController(
 
         TempData["Basari"] = $"Stajyer oluşturuldu. Kullanıcı adı: {sonuc.KullaniciAdi} — ilk girişte parola değişimi zorunludur.";
         return RedirectToAction(nameof(Index));
+    }
+
+    /// <summary>Boş .xlsx toplu ekleme şablonunu indirir.</summary>
+    [HttpGet]
+    public IActionResult SablonIndir()
+    {
+        return File(topluStajyer.SablonUret(), XlsxTuru, "stajyer_sablonu.xlsx");
+    }
+
+    /// <summary>
+    /// Yüklenen .xlsx'ten toplu stajyer ekler. Dosya bellekte işlenir; diske YAZILMAZ.
+    /// Sonuç (eklenen/atlanan + gerekçeler) aynı sayfada gösterilir.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(MaksDosyaBoyutu)]
+    public async Task<IActionResult> TopluEkle(IFormFile? dosya)
+    {
+        var model = new StajyerOlusturViewModel { AmirSecenekleri = await AmirSecenekleriAsync() };
+
+        if (dosya is null || dosya.Length == 0)
+        {
+            ModelState.AddModelError(string.Empty, "Lütfen bir .xlsx dosyası seçin.");
+            return View(nameof(StajyerOlustur), model);
+        }
+
+        if (dosya.Length > MaksDosyaBoyutu)
+        {
+            ModelState.AddModelError(string.Empty, "Dosya çok büyük (en fazla 5 MB).");
+            return View(nameof(StajyerOlustur), model);
+        }
+
+        if (!dosya.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+        {
+            ModelState.AddModelError(string.Empty, "Yalnızca .xlsx dosyası kabul edilir.");
+            return View(nameof(StajyerOlustur), model);
+        }
+
+        // Diske yazmadan, bellekten işle.
+        await using var akis = dosya.OpenReadStream();
+        model.TopluSonuc = await topluStajyer.IceAktarAsync(akis, AktifKullaniciAdi());
+
+        return View(nameof(StajyerOlustur), model);
     }
 
     [HttpGet]

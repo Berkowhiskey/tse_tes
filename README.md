@@ -27,6 +27,7 @@ Sistem **on-prem** çalışır ve **yalnızca kurum ağından** erişilir. Stajy
 | Kimlik | **ASP.NET Core Identity** (hash'li parola, rol yönetimi, ilk girişte zorunlu parola değişimi) |
 | UI | **Tabler 1.4.0** (Bootstrap 5 tabanlı, MIT, jQuery'siz) — `wwwroot/lib/tabler` altında vendor'lanmış, **CDN kullanılmaz**. Renk teması **scarlet-snow** (paleti `site.css`'te `--tblr-*` override'ı); navbar açılır menülerle gruplu; **Aç/Koyu tema** geçişi (`localStorage` + sistem tercihi, `site.js`) |
 | Gerçek zamanlı | **SignalR** (chatbox — amir ↔ stajyer; JS client vendor'lanmış, CDN yok) |
+| Excel | **ClosedXML** (MIT) — toplu stajyer içe aktarma şablonu üretimi ve .xlsx okuma; yerel kütüphane, CDN/ağ bağımlılığı değil |
 | Test | **xUnit** |
 
 ---
@@ -160,4 +161,5 @@ dotnet ef migrations add <Ad> --project src/TES.Infrastructure --startup-project
 - [x] **Faz 4 — Sosyal:** Gönderi + moderasyon + Yorum/Beğeni
 - [x] **Faz 5 — İletişim:** Chatbox + bildirimler (SignalR)
 - [x] **Faz 6 — Görünüm:** Responsive navbar (açılır menü gruplama), scarlet-snow renk teması + Aç/Koyu geçiş
+- [x] **Faz 7 — Toplu ekleme:** Excel (.xlsx) ile toplu stajyer içe aktarma (şablon indir/yükle, satır-bazlı doğrulama + rapor)
 - [ ] **Sonrası:** mobil push, basit yerel AI, KVKK sertleştirme
